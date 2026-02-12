@@ -62,7 +62,7 @@ const randomStyle = (i) => {
 
 .next-btn {
   position: absolute;
-  bottom: 20px;
+  bottom: 90px;
   left: 50%;
   transform: translateX(-50%);
 }
