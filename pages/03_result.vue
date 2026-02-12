@@ -5,20 +5,44 @@
     <p>あなたが選んだもの：</p>
     <h2>{{ finalChoice }}</h2>
 
-    <button @click="goHome">ホームへ戻る</button>
+    <textarea
+      v-model="memo"
+      placeholder="ひとことメモ（任意）"
+      class="memo-area"
+    ></textarea>
+
+    <button @click="saveAndHome">保存してホームへ戻る</button>
   </div>
 </template>
 
 <script setup>
 const choices = useState('choices')
+const memo = ref('')
+const supabase = useSupabase()
 
-// Reflect で「これがいい」を押した時点で
-// choices の中には「選ばれた1つ」だけが残っている想定
 const finalChoice = computed(() => choices.value[0])
 
-const goHome = () => {
-  // choices をリセットしておくと次の迷いに備えられる
+console.log("Result画面に来たよ")
+console.log("choices:", choices.value)
+console.log("finalChoice:", finalChoice.value)
+
+
+const saveAndHome = async () => {
+  const { error } = await supabase
+    .from('selflect_logs')
+    .insert({
+      choice: finalChoice.value,
+      memo: memo.value,
+      created_at: new Date()
+    })
+
+  if (error) {
+    console.error('保存エラー:', error)
+  }
+
   choices.value = []
+  memo.value = ''
+
   navigateTo('/')
 }
 </script>
@@ -26,5 +50,15 @@ const goHome = () => {
 <style scoped>
 .result-container {
   padding: 20px;
+}
+
+.memo-area {
+  width: 100%;
+  height: 120px;
+  margin-top: 20px;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
 </style>

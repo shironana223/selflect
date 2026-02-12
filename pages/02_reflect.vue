@@ -2,57 +2,48 @@
   <div class="reflect-container">
     <h1>Reflect（仮）</h1>
 
-    <div v-if="current">
-      <p>今の選択肢：{{ current }}</p>
+    <div v-if="choices.length > 1">
+      <p>どちらにする？</p>
+      <h2>{{ current }}</h2>
 
-      <button @click="keep">まだ迷う</button>
-      <button @click="drop">手放す</button>
-      <button @click="decide">これがいい</button>
+      <button @click="drop">こっちは違う</button>
+      <button @click="pickRandom">もう一回</button>
     </div>
 
     <div v-else>
       <p>最後の1つになりました</p>
+      <h2>{{ choices[0] }}</h2>
+
       <button @click="decide">決定へ</button>
     </div>
   </div>
 </template>
 
 <script setup>
-const choices = useState('choices')
+const choices = useState("choices")
+const current = useState("current", () => null)
 
-// 今見ている選択肢
-const current = ref(null)
-
-// Reflect に入ったら最初の1つを選ぶ
-onMounted(() => {
-  pickRandom()
-})
-
-// ランダムに1つ選ぶ
 const pickRandom = () => {
-  if (choices.value.length === 1) {
-    current.value = null
-    return
-  }
-
-  const index = Math.floor(Math.random() * choices.value.length)
-  current.value = choices.value[index]
+  if (choices.value.length <= 1) return
+  const idx = Math.floor(Math.random() * choices.value.length)
+  current.value = choices.value[idx]
 }
 
-// 「まだ迷う」→ 別のランダムへ
-const keep = () => {
-  pickRandom()
-}
-
-// 「手放す」→ choices から削除して次へ
 const drop = () => {
-  choices.value = choices.value.filter(c => c !== current.value)
+  choices.value = choices.value.filter((c) => c !== current.value)
+
   pickRandom()
 }
 
-// 「これがいい」→ result へ
 const decide = () => {
-  navigateTo('/03_result')
+  console.log("決定へ押されたよ")
+  console.log("遷移直前 choices:", choices.value)
+  navigateTo("/03_result")
+}
+
+// Reflect に来た瞬間に current をセット
+if (!current.value && choices.value.length > 1) {
+  pickRandom()
 }
 </script>
 
