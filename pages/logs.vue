@@ -1,118 +1,151 @@
 <template>
-  <div class="logs-container">
-    <h1>これまでの記録</h1>
+  <div class="logs-page">
+    <h1>選んだ瞬間たち</h1>
 
     <div v-if="loading">読み込み中…</div>
 
-    <div v-else>
-      <div v-if="logs.length === 0">
-        <p>まだ記録がありません。</p>
-      </div>
+    <transition-group name="list" tag="ul">
+  <li
+    v-for="log in logs"
+    :key="log.id"
+    :id="`log-${log.id}`"
+    v-show="!log.deleted"
+  >
+    <strong>{{ log.choice }}</strong>
+    <div class="memo">{{ log.memo }}</div>
+    <div class="date">{{ formatDate(log.date) }}</div>
 
-      <ul v-else>
-        <li v-for="(log, index) in logs" :key="index">
-          <strong>{{ log.choice }}</strong>
-          <div class="memo">{{ log.memo }}</div>
-          <div class="date">{{ formatDate(log.date) }}</div>
-          <button @click="deleteLog(log.id)">削除</button>
+    <button class="delete-btn" @click="deleteLog(log.id)">
+      手放す
+    </button>
+  </li>
+</transition-group>
 
-        </li>
-      </ul>
-    </div>
-
-    <button @click="goHome">ホームに戻る</button>
+    <button class="home-btn" @click="goHome">ホームに戻る</button>
   </div>
 </template>
 
 <script setup>
-const supabase = useSupabaseClient()
+import { ref, onMounted } from "vue"
+import { useRouter } from "vue-router"
+import { useSupabase } from "~/composables/useSupabase"
 
+const supabase = useSupabase()
+
+const router = useRouter()
 const logs = ref([])
 const loading = ref(true)
 
-// 日付の整形
-const formatDate = (iso) => {
-  if (!iso) return ""
-  const d = new Date(iso)
-
-  const weekdays = ["日", "月", "火", "水", "木", "金", "土"]
-
-  const yyyy = d.getFullYear()
-  const mm = d.getMonth() + 1
-  const dd = d.getDate()
-  const w = weekdays[d.getDay()]
-  const hh = String(d.getHours()).padStart(2, "0")
-  const min = String(d.getMinutes()).padStart(2, "0")
-
-  return `${yyyy}年${mm}月${dd}日(${w}) ${hh}:${min}`
-}
-
-
-// Supabase からログを取得
 onMounted(async () => {
   const { data, error } = await supabase
     .from("logs")
     .select("*")
     .order("date", { ascending: false })
 
-  if (error) {
-    console.error("ログ取得エラー:", error)
-  } else {
-    logs.value = data
+  if (!error) {
+    logs.value = data.map((log) => ({ ...log, deleted: false }))
   }
 
   loading.value = false
+
+  console.log("raw data:", data)
 })
 
-const goHome = () => {
-  navigateTo("/")
-}
 const deleteLog = async (id) => {
-  const ok = confirm("この記録を削除しますか？")
+  const ok = confirm("この選択を手放しますか？")
   if (!ok) return
 
-  const { error } = await supabase
-    .from("logs")
-    .delete()
-    .eq("id", id)
+  const el = document.getElementById(`log-${id}`)
+  if (el) el.classList.add("fade-out")
 
-  if (error) {
-    console.error("削除エラー:", error)
-    alert("削除に失敗しました")
-    return
-  }
+  setTimeout(async () => {
+    const { error } = await supabase.from("logs").delete().eq("id", id)
 
-  // 画面からも即座に消す
-  logs.value = logs.value.filter((log) => log.id !== id)
+    if (error) {
+      console.error("削除エラー:", error)
+      alert("削除に失敗しました")
+      return
+    }
+
+    const target = logs.value.find((log) => log.id === id)
+    if (target) target.deleted = true
+  }, 400)
 }
 
+const goHome = () => {
+  router.push("/")
+}
+
+const formatDate = (date) => {
+  return new Date(date).toLocaleString("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  })
+}
 </script>
 
 <style scoped>
-.logs-container {
+.list-move { transition: transform 0.4s ease; }
+
+.logs-page {
   padding: 20px;
 }
 
 ul {
-  list-style: none;
-  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 li {
   padding: 12px;
-  margin-bottom: 12px;
   border: 1px solid #ddd;
   border-radius: 8px;
+  background: #fff;
+  transition: all 0.4s ease;
 }
 
 .memo {
-  margin-top: 4px;
-  opacity: 0.8;
+  margin-top: 6px;
+  color: #555;
 }
 
 .date {
   margin-top: 4px;
   font-size: 12px;
-  opacity: 0.6;
+  color: #888;
+}
+
+.delete-btn {
+  margin-top: 10px;
+  background: #f5e6e6;
+  color: #a33;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.delete-btn:hover {
+  background: #f2dada;
+}
+
+.home-btn {
+  margin-top: 24px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #eee;
+  cursor: pointer;
+}
+
+.fade-out {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 </style>
