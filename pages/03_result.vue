@@ -1,64 +1,109 @@
 <template>
   <div class="result-container">
-    <h1>Result（仮）</h1>
+    <h1>結果</h1>
 
-    <p>あなたが選んだもの：</p>
-    <h2>{{ finalChoice }}</h2>
+    <div v-if="finalChoice">
+      <p>あなたが残したのはこれです</p>
+      <h2>{{ finalChoice }}</h2>
 
-    <textarea
-      v-model="memo"
-      placeholder="ひとことメモ（任意）"
-      class="memo-area"
-    ></textarea>
+      <p class="message">また迷ったら、いつでもどうぞ。</p>
 
-    <button @click="saveAndHome">保存してホームへ戻る</button>
+      <div class="memo-area">
+        <textarea
+          v-model="memo"
+          placeholder="ひとことメモ（任意）"
+        ></textarea>
+        <button @click="saveLog">保存する</button>
+      </div>
+
+      <div class="buttons">
+        <button @click="retry">もう一度やってみる</button>
+        <button @click="reset">最初から入力する</button>
+      </div>
+    </div>
+
+    <div v-else>
+      <p>選択肢が見つかりませんでした。</p>
+      <button @click="reset">最初から入力する</button>
+    </div>
   </div>
 </template>
 
 <script setup>
-const choices = useState('choices')
-const memo = ref('')
-const supabase = useSupabase()
+import { useLocalStorage } from '@vueuse/core'
 
-const finalChoice = computed(() => choices.value[0])
+const route = useRoute()
+const finalChoice = route.query.choice || null
 
-console.log("Result画面に来たよ")
-console.log("choices:", choices.value)
-console.log("finalChoice:", finalChoice.value)
+const choices = useState("choices")
+const current = useState("current")
 
+// コメント入力
+const memo = ref("")
 
-const saveAndHome = async () => {
-  const { error } = await supabase
-    .from('selflect_logs')
-    .insert({
-      choice: finalChoice.value,
+// ★ localStorage 永続化（初期値は配列そのもの）
+const logs = useLocalStorage("logs", [])
+
+// 保存処理
+const saveLog = () => {
+  logs.value = [
+    ...logs.value,
+    {
+      choice: finalChoice,
       memo: memo.value,
-      created_at: new Date()
-    })
+      date: new Date().toISOString()
+    }
+  ]
 
-  if (error) {
-    console.error('保存エラー:', error)
-  }
+  memo.value = ""
+  alert("保存しました")
+}
 
+// もう一度やる
+const retry = () => {
+  current.value = null
+  navigateTo("/02_reflect")
+}
+
+// 最初から
+const reset = () => {
   choices.value = []
-  memo.value = ''
-
-  navigateTo('/')
+  current.value = null
+  navigateTo("/")
 }
 </script>
 
 <style scoped>
 .result-container {
   padding: 20px;
+  text-align: center;
+}
+
+.message {
+  margin-top: 16px;
+  font-size: 14px;
+  opacity: 0.8;
 }
 
 .memo-area {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+textarea {
   width: 100%;
-  height: 120px;
-  margin-top: 20px;
-  padding: 10px;
-  font-size: 16px;
+  min-height: 80px;
+  padding: 12px;
   border-radius: 8px;
   border: 1px solid #ccc;
+}
+
+.buttons {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 </style>

@@ -27,7 +27,7 @@
       <button @click="decide">決定へ</button>
     </div>
 
-    <!-- 確認ダイアログ -->
+    <!-- ▼ 確認ダイアログ -->
     <div v-if="showConfirm" class="confirm-dialog">
       <div class="dialog-content">
         <p>これにする？</p>
@@ -46,28 +46,30 @@
 const choices = useState("choices")
 const current = useState("current", () => null)
 
-// 追加：確認ダイアログ用
+// ▼ 確認ダイアログ用
 const showConfirm = ref(false)
 const selectedChoice = ref(null)
 
+// ▼ ランダムに1つ選ぶ
 const pickRandom = () => {
   if (choices.value.length <= 1) return
   const idx = Math.floor(Math.random() * choices.value.length)
   current.value = choices.value[idx]
 }
 
+// ▼ 手放す
 const drop = () => {
   choices.value = choices.value.filter((c) => c !== current.value)
   pickRandom()
 }
 
-// 追加：「これがいい」押したとき
+// ▼ 「これがいい」押したとき
 const chooseThis = () => {
   selectedChoice.value = current.value
   showConfirm.value = true
 }
 
-// 追加：確認ダイアログ → 決める
+// ▼ ダイアログ → 決める
 const confirmChoice = () => {
   navigateTo({
     path: "/03_result",
@@ -75,12 +77,13 @@ const confirmChoice = () => {
   })
 }
 
-// 追加：確認ダイアログ → まだ迷う
+// ▼ ダイアログ → まだ迷う
 const cancelConfirm = () => {
   showConfirm.value = false
   selectedChoice.value = null
 }
 
+// ▼ 最後の1つになったときの決定
 const decide = () => {
   navigateTo({
     path: "/03_result",
@@ -88,7 +91,7 @@ const decide = () => {
   })
 }
 
-// Reflect に来た瞬間に current をセット
+// ▼ Reflect に来た瞬間に current をセット
 if (!current.value && choices.value.length > 1) {
   pickRandom()
 }
@@ -99,7 +102,7 @@ if (!current.value && choices.value.length > 1) {
   padding: 20px;
 }
 
-/* ボタン配置のための軽いスタイル（後で整えればOK） */
+/* ボタン配置（仮） */
 .upper-buttons {
   display: flex;
   gap: 12px;
@@ -110,11 +113,11 @@ if (!current.value && choices.value.length > 1) {
   margin-top: 24px;
 }
 
-/* 確認ダイアログ（仮） */
+/* ダイアログ（仮） */
 .confirm-dialog {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0,0,0,0.4);
   display: flex;
   align-items: center;
   justify-content: center;
