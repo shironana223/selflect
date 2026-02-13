@@ -14,6 +14,8 @@
           <strong>{{ log.choice }}</strong>
           <div class="memo">{{ log.memo }}</div>
           <div class="date">{{ formatDate(log.date) }}</div>
+          <button @click="deleteLog(log.id)">削除</button>
+
         </li>
       </ul>
     </div>
@@ -65,6 +67,25 @@ onMounted(async () => {
 const goHome = () => {
   navigateTo("/")
 }
+const deleteLog = async (id) => {
+  const ok = confirm("この記録を削除しますか？")
+  if (!ok) return
+
+  const { error } = await supabase
+    .from("logs")
+    .delete()
+    .eq("id", id)
+
+  if (error) {
+    console.error("削除エラー:", error)
+    alert("削除に失敗しました")
+    return
+  }
+
+  // 画面からも即座に消す
+  logs.value = logs.value.filter((log) => log.id !== id)
+}
+
 </script>
 
 <style scoped>
