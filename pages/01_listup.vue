@@ -23,8 +23,15 @@ const input = ref('')
 const choices = useState('choices', () => [])
 
 const addChoice = () => {
-  if (!input.value) return
-  choices.value.push(input.value)
+  const trimmed = input.value.trim()
+  if (!trimmed) return
+
+  if (choices.value.includes(trimmed)) {
+    alert("同じ選択肢がすでにあります")
+    return
+  }
+
+  choices.value.push(trimmed)
   input.value = ''
 }
 
