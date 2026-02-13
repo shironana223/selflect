@@ -31,8 +31,20 @@ const loading = ref(true)
 // 日付の整形
 const formatDate = (iso) => {
   if (!iso) return ""
-  return new Date(iso).toLocaleString()
+  const d = new Date(iso)
+
+  const weekdays = ["日", "月", "火", "水", "木", "金", "土"]
+
+  const yyyy = d.getFullYear()
+  const mm = d.getMonth() + 1
+  const dd = d.getDate()
+  const w = weekdays[d.getDay()]
+  const hh = String(d.getHours()).padStart(2, "0")
+  const min = String(d.getMinutes()).padStart(2, "0")
+
+  return `${yyyy}年${mm}月${dd}日(${w}) ${hh}:${min}`
 }
+
 
 // Supabase からログを取得
 onMounted(async () => {
