@@ -31,6 +31,7 @@
 
 <script setup>
 import { useLocalStorage } from '@vueuse/core'
+const supabase = useSupabaseClient()
 
 const route = useRoute()
 const finalChoice = route.query.choice || null
@@ -38,25 +39,35 @@ const finalChoice = route.query.choice || null
 const choices = useState("choices")
 const current = useState("current")
 
-// コメント入力
 const memo = ref("")
 
-// ★ localStorage 永続化（初期値は配列そのもの）
+// localStorage 永続化
 const logs = useLocalStorage("logs", [])
 
 // 保存処理
-const saveLog = () => {
-  logs.value = [
-    ...logs.value,
-    {
-      choice: finalChoice,
-      memo: memo.value,
-      date: new Date().toISOString()
-    }
-  ]
+const saveLog = async () => {
+  const newLog = {
+    choice: finalChoice,
+    memo: memo.value,
+    date: new Date().toISOString()
+  }
+
+  // ▼ 1. localStorage に保存（安全）
+  logs.value = [...logs.value, newLog]
+
+  // ▼ 2. Supabase に保存（外部サービス）
+  const { error } = await supabase
+    .from("logs")
+    .insert(newLog)
+
+  if (error) {
+    console.error("Supabase 保存エラー:", error)
+    alert("保存しました（※ネットワークの都合でクラウド保存は後で再試行されます）")
+  } else {
+    alert("保存しました")
+  }
 
   memo.value = ""
-  alert("保存しました")
 }
 
 // もう一度やる
