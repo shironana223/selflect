@@ -2,26 +2,46 @@
   <div class="logs-page">
     <h1>選んだ瞬間たち</h1>
 
-    <div v-if="loading">読み込み中…</div>
+<!-- 読み込み前は何も出さない（空白） -->
+<div v-if="!loaded"></div>
 
-    <transition-group name="list" tag="ul">
-  <li v-for="log in logs" :key="log.id" class="log-row">
-  <div class="log-main">
-    <strong>{{ log.choice }}</strong>
+<!-- 読み込み後に空なら表示 -->
+<div v-else-if="logs.length === 0" class="empty-message">
+  まだ、ページは白いままです
+</div>
 
-    <div v-if="editingId !== log.id" class="memo">{{ log.memo }}</div>
-    <input v-else v-model="editMemo" class="memo-edit-input" />
+<!-- 読み込み後にログがあれば表示 -->
+<transition-group v-else name="list" tag="ul">
 
-    <div class="date">{{ formatDate(log.date) }}</div>
-  </div>
+      <li v-for="log in logs" :key="log.id" class="log-row">
+        <div class="log-main">
+          <strong>{{ log.choice }}</strong>
 
-  <div class="icon-row">
-    <button v-if="editingId !== log.id" class="icon-btn edit-btn" @click="startEdit(log)">✏️</button>
-    <button v-else class="icon-btn save-btn" @click="saveEdit(log.id)">💾</button>
-    <button class="icon-btn delete-btn" @click="deleteLog(log.id)">🗑</button>
-  </div>
-</li>
+          <div v-if="editingId !== log.id" class="memo">{{ log.memo }}</div>
+          <input v-else v-model="editMemo" class="memo-edit-input" />
 
+          <div class="date">{{ formatDate(log.date) }}</div>
+        </div>
+
+        <!-- アイコン行は li の中に入れる -->
+        <div class="icon-row">
+          <button
+            v-if="editingId !== log.id"
+            class="icon-btn edit-btn"
+            @click="startEdit(log)"
+          >
+            ✏️
+          </button>
+
+          <button v-else class="icon-btn save-btn" @click="saveEdit(log.id)">
+            💾
+          </button>
+
+          <button class="icon-btn delete-btn" @click="deleteLog(log.id)">
+            🗑
+          </button>
+        </div>
+      </li>
     </transition-group>
 
     <button class="home-btn" @click="goHome">ホームに戻る</button>
@@ -37,7 +57,7 @@ const supabase = useSupabase()
 
 const router = useRouter()
 const logs = ref([])
-const loading = ref(true)
+const loaded = ref(false)
 
 onMounted(async () => {
   const { data, error } = await supabase
@@ -49,7 +69,7 @@ onMounted(async () => {
     logs.value = data.map((log) => ({ ...log, deleted: false }))
   }
 
-  loading.value = false
+  loaded.value = true
 
   console.log("raw data:", data)
 })
@@ -117,6 +137,8 @@ const formatDate = (date) => {
     minute: "2-digit"
   })
 }
+
+
 </script>
 
 <style scoped>
@@ -176,7 +198,6 @@ li {
   gap: 12px; /* ← テキストとボタンの距離をここで調整 */
 }
 
-
 /* 左側のテキスト部分 */
 .log-main {
   display: flex;
@@ -228,11 +249,9 @@ li {
   opacity: 0.85;
 }
 
-
 .icon-row {
   display: flex;
   gap: 6px; /* ← ボタン同士の余白 */
   align-items: center;
 }
-
 </style>

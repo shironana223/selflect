@@ -23,17 +23,13 @@ const goToLog = () => {
 }
 </script>
 
-
-
 <template>
   <div class="home">
     <h1 class="title">Selflect</h1>
 
     <button @click="navigateTo('/01_listup')">はじめる</button>
 
-    <button @click="goToLog">
-      {{ hasLogs ? "選んだ瞬間たちを見る" : "まだ瞬間はありません" }}
-    </button>
+    <button @click="goToLog">選んだ瞬間たちを見る</button>
   </div>
 </template>
 
