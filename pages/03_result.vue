@@ -11,11 +11,13 @@
       <div class="memo-area">
         <textarea
           v-model="memo"
-          placeholder="ひとことメモ（任意）"
+          placeholder="そっとひとこと"
+          :disabled="alreadySaved"
         ></textarea>
+
         <button @click="saveLog" :disabled="alreadySaved">
-  {{ alreadySaved ? "保存済み" : "保存する" }}
-</button>
+          {{ alreadySaved ? "保存済み" : "保存する" }}
+        </button>
       </div>
 
       <div class="buttons">
@@ -32,31 +34,37 @@
 </template>
 
 <script setup>
+import { useLocalStorage } from "@vueuse/core"
+
+const supabase = useSupabaseClient()
+const route = useRoute()
+
+const finalChoice = route.query.choice || null
+const memo = ref("")
+const logs = useLocalStorage("logs", [])
+
 const alreadySaved = ref(false)
+
+// ▼ この瞬間のユニークID（毎回 Reflect → Result で変わる）
+const logId = Date.now()
+
+// ▼ 保存済みチェック（localStorage）
 onMounted(async () => {
-  // localStorage に同じ choice がある？
-  if (logs.value.some(log => log.choice === finalChoice)) {
+  if (logs.value.some((log) => log.id === logId)) {
     alreadySaved.value = true
     return
   }
 
-
-  // Supabase に同じ choice がある？
-  const { data: existing } = await supabase
-    .from("logs")
-    .select("*")
-    .eq("choice", finalChoice)
-    .maybeSingle()
-
-  if (existing) {
-    alreadySaved.value = true
-  }
+  // ▼ Supabase 側の保存済みチェック（ID ではなく choice で判定していた部分は削除）
+  // 今後は ID で判定するので Supabase 側のチェックは不要
 })
 
+// ▼ 保存処理（1回だけ）
 const saveLog = async () => {
-  if (alreadySaved.value) return  // ← 2回目は保存しない
+  if (alreadySaved.value) return
 
   const newLog = {
+    id: logId,
     choice: finalChoice,
     memo: memo.value,
     date: new Date().toISOString()
@@ -66,42 +74,28 @@ const saveLog = async () => {
   logs.value = [...logs.value, newLog]
 
   // Supabase
-  const { error } = await supabase
-    .from("logs")
-    .insert(newLog)
+  const { error } = await supabase.from("logs").insert(newLog)
 
   if (error) {
     console.error("Supabase 保存エラー:", error)
-    alert("保存しました（クラウド保存は後で再試行されます）")
+    alert("この瞬間を残しました（クラウド保存は後で再試行されます）")
   } else {
-    alert("保存しました")
+    alert("この瞬間を残しました")
   }
 
   alreadySaved.value = true
 }
 
-import { useLocalStorage } from '@vueuse/core'
-const supabase = useSupabaseClient()
-
-const route = useRoute()
-const finalChoice = route.query.choice || null
-
+// ▼ もう一度やる
 const choices = useState("choices")
 const current = useState("current")
 
-const memo = ref("")
-
-// localStorage 永続化
-const logs = useLocalStorage("logs", [])
-
-
-// もう一度やる
 const retry = () => {
   current.value = null
   navigateTo("/02_reflect")
 }
 
-// 最初から
+// ▼ 最初から
 const reset = () => {
   choices.value = []
   current.value = null
@@ -134,6 +128,11 @@ textarea {
   padding: 12px;
   border-radius: 8px;
   border: 1px solid #ccc;
+}
+
+textarea:disabled {
+  opacity: 0.6;
+  background: #f5f5f5;
 }
 
 .buttons {
