@@ -90,10 +90,14 @@ const saveLog = async () => {
 const choices = useState("choices")
 const current = useState("current")
 
+const originalChoices = useState("originalChoices")
+
 const retry = () => {
+  choices.value = [...originalChoices.value]  // ← 元に戻す
   current.value = null
   navigateTo("/02_reflect")
 }
+
 
 // ▼ 最初から
 const reset = () => {

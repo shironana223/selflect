@@ -43,6 +43,11 @@
 </template>
 
 <script setup>
+onMounted(() => {
+  console.log("Reflect に来たときの choices:", choices.value)
+})
+
+
 const choices = useState("choices")
 const current = useState("current", () => null)
 
@@ -51,7 +56,7 @@ const showConfirm = ref(false)
 const selectedChoice = ref(null)
 
 // ▼ ランダムに1つ選ぶ
-const lastChoice = useState('lastChoice', () => null)
+const lastChoice = useState("lastChoice", () => null)
 
 const pickRandom = () => {
   if (choices.value.length === 0) return null
@@ -70,13 +75,9 @@ const pickRandom = () => {
   } while (candidate === lastChoice.value && tries < 5)
 
   lastChoice.value = candidate
-  current.value = candidate   // ← これが必要！！
+  current.value = candidate // ← これが必要！！
   return candidate
 }
-
-
-
-
 
 // ▼ 手放す
 const drop = () => {
@@ -113,9 +114,11 @@ const decide = () => {
 }
 
 // ▼ Reflect に来た瞬間に current をセット
-if (!current.value && choices.value.length > 1) {
-  pickRandom()
-}
+onMounted(() => {
+  if (!current.value) {
+    pickRandom()
+  }
+})
 </script>
 
 <style scoped>
@@ -138,7 +141,7 @@ if (!current.value && choices.value.length > 1) {
 .confirm-dialog {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
