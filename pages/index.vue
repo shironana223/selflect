@@ -29,7 +29,7 @@ const goToLog = () => {
 
     <button @click="navigateTo('/01_listup')">はじめる</button>
 
-    <button @click="goToLog">選んだ瞬間たちを見る</button>
+    <button @click="goToLog">記録をひらく</button>
   </div>
 </template>
 
@@ -37,8 +37,31 @@ const goToLog = () => {
 .home {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px;
+  gap: 24px;
+  padding: 48px 24px;
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  padding: 8px 0;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.3s ease;
+}
+button:hover {
+  transform: translateY(1px);
+  opacity: 0.6;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 500;
+  margin-bottom: 24px;
 }
 
 .logs-btn {
