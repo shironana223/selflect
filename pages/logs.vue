@@ -11,13 +11,32 @@
     :id="`log-${log.id}`"
     v-show="!log.deleted"
   >
-    <strong>{{ log.choice }}</strong>
-    <div class="memo">{{ log.memo }}</div>
-    <div class="date">{{ formatDate(log.date) }}</div>
+<strong>{{ log.choice }}</strong>
 
-    <button class="delete-btn" @click="deleteLog(log.id)">
-      手放す
-    </button>
+<!-- メモ表示 or 編集 -->
+<div v-if="editingId !== log.id" class="memo">
+  {{ log.memo }}
+</div>
+<input
+  v-else
+  v-model="editMemo"
+  class="memo-edit-input"
+/>
+
+<div class="date">{{ formatDate(log.date) }}</div>
+
+<!-- 編集ボタン or 保存ボタン -->
+<button v-if="editingId !== log.id" @click="startEdit(log)">
+  ✏️
+</button>
+<button v-else @click="saveEdit(log.id)">
+  💾
+</button>
+
+<button class="delete-btn" @click="deleteLog(log.id)">
+  手放す
+</button>
+
   </li>
 </transition-group>
 
@@ -70,6 +89,35 @@ const deleteLog = async (id) => {
     const target = logs.value.find((log) => log.id === id)
     if (target) target.deleted = true
   }, 400)
+}
+
+const editingId = ref(null)
+const editMemo = ref("")
+
+const startEdit = (log) => {
+  editingId.value = log.id
+  editMemo.value = log.memo ?? ""
+}
+
+const saveEdit = async (id) => {
+  const { error } = await supabase
+    .from("logs")
+    .update({ memo: editMemo.value })
+    .eq("id", id)
+
+  if (error) {
+    alert("保存に失敗しました")
+    return
+  }
+
+  // ローカルの logs も更新
+  const target = logs.value.find((l) => l.id === id)
+  if (target) target.memo = editMemo.value
+
+  editingId.value = null
+  editMemo.value = ""
+
+  alert("この瞬間を少し整えました")
 }
 
 const goHome = () => {
