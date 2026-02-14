@@ -1,0 +1,15 @@
+.selflect-bg {
+  background: linear-gradient(to bottom, #E9EFF3, #F4F7F9);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Fog Layer（中粒ノイズ） */
+.selflect-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('/noise-medium.svg'); /* SVG ノイズを置く */
+  opacity: 0.025; /* 2.5%：存在感あり、邪魔しない */
+  pointer-events: none;
+}

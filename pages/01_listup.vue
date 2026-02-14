@@ -9,18 +9,19 @@
     />
 
     <ul>
-      <li v-for="(c, i) in choices" :key="i">
+      <li v-for="(c, i) in choices" :key="i" class="choice-row">
         <span v-if="editingIndex !== i">{{ c }}</span>
         <input v-else v-model="input" @keyup.enter="saveEdit" />
+
         <div class="icon-row">
-          <button class="icon-btn edit-btn" @click="startEdit(i)">✏️</button>
           <button
-            class="icon-btn save-btn"
-            v-if="editingIndex === i"
-            @click="saveEdit"
+            v-if="editingIndex !== i"
+            class="icon-btn edit-btn"
+            @click="startEdit(i)"
           >
-            💾
+            ✏️
           </button>
+          <button v-else class="icon-btn save-btn" @click="saveEdit">💾</button>
           <button class="icon-btn delete-btn" @click="removeChoice(i)">
             🗑
           </button>
@@ -95,6 +96,28 @@ const removeChoice = (i) => {
   gap: 6px; /* ← ボタン同士の余白 */
   align-items: center;
 }
+/* li を左右2カラムにする */
+.choice-row,
+.log-row {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* ← テキストとボタンの距離をここで調整 */
+}
+
+
+/* 左側のテキスト部分 */
+.log-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ボタンを横並びにする */
+.icon-row {
+  display: flex;
+  gap: 6px;
+}
+
 
 .icon-btn {
   width: 36px;

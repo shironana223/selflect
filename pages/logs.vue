@@ -5,41 +5,23 @@
     <div v-if="loading">読み込み中…</div>
 
     <transition-group name="list" tag="ul">
-      <li
-        v-for="log in logs"
-        :key="log.id"
-        :id="`log-${log.id}`"
-        v-show="!log.deleted"
-      >
-        <strong>{{ log.choice }}</strong>
+  <li v-for="log in logs" :key="log.id" class="log-row">
+  <div class="log-main">
+    <strong>{{ log.choice }}</strong>
 
-        <!-- メモ表示 or 編集 -->
-        <div v-if="editingId !== log.id" class="memo">
-          {{ log.memo }}
-        </div>
-        <input v-else v-model="editMemo" class="memo-edit-input" />
+    <div v-if="editingId !== log.id" class="memo">{{ log.memo }}</div>
+    <input v-else v-model="editMemo" class="memo-edit-input" />
 
-        <div class="date">{{ formatDate(log.date) }}</div>
+    <div class="date">{{ formatDate(log.date) }}</div>
+  </div>
 
-        <!-- 編集ボタン or 保存ボタン -->
-        <div class="icon-row">
-        <button
-          v-if="editingId !== log.id"
-          class="icon-btn edit-btn"
-          @click="startEdit(log)"
-        >
-          ✏️
-        </button>
+  <div class="icon-row">
+    <button v-if="editingId !== log.id" class="icon-btn edit-btn" @click="startEdit(log)">✏️</button>
+    <button v-else class="icon-btn save-btn" @click="saveEdit(log.id)">💾</button>
+    <button class="icon-btn delete-btn" @click="deleteLog(log.id)">🗑</button>
+  </div>
+</li>
 
-        <button v-else class="icon-btn save-btn" @click="saveEdit(log.id)">
-          💾
-        </button>
-
-        <button class="icon-btn delete-btn" @click="deleteLog(log.id)">
-          🗑
-        </button>
-        </div>
-      </li>
     </transition-group>
 
     <button class="home-btn" @click="goHome">ホームに戻る</button>
@@ -185,6 +167,29 @@ li {
   transform: translateY(4px);
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
+
+/* li を左右2カラムにする */
+.choice-row,
+.log-row {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* ← テキストとボタンの距離をここで調整 */
+}
+
+
+/* 左側のテキスト部分 */
+.log-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ボタンを横並びにする */
+.icon-row {
+  display: flex;
+  gap: 6px;
+}
+
 .icon-btn {
   width: 36px;
   height: 32px;
