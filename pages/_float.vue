@@ -1,4 +1,7 @@
 <template>
+<div class="selflect-bg">
+  <ReflectChoices :choices="choices" />
+  <div class="foreground">
   <div class="float-container">
     <div
       v-for="(c, i) in choices"
@@ -11,6 +14,9 @@
 
     <button class="next-btn" @click="goReflect">はじめる</button>
   </div>
+  </div>
+</div>
+
 </template>
 
 <script setup>
@@ -33,6 +39,21 @@ const randomStyle = (i) => {
 </script>
 
 <style scoped>
+.selflect-bg {
+  position: relative;
+}
+
+ReflectChoices {
+  position: absolute;
+  inset: 0;
+  z-index: 1; /* 背景 */
+}
+
+.foreground {
+  position: relative;
+  z-index: 2; /* 前景 */
+}
+
 .float-container {
   position: relative;
   width: 100%;
