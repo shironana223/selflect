@@ -51,11 +51,32 @@ const showConfirm = ref(false)
 const selectedChoice = ref(null)
 
 // ▼ ランダムに1つ選ぶ
+const lastChoice = useState('lastChoice', () => null)
+
 const pickRandom = () => {
-  if (choices.value.length <= 1) return
-  const idx = Math.floor(Math.random() * choices.value.length)
-  current.value = choices.value[idx]
+  if (choices.value.length === 0) return null
+  if (choices.value.length === 1) {
+    current.value = choices.value[0]
+    return current.value
+  }
+
+  let candidate = null
+  let tries = 0
+
+  do {
+    const index = Math.floor(Math.random() * choices.value.length)
+    candidate = choices.value[index]
+    tries++
+  } while (candidate === lastChoice.value && tries < 5)
+
+  lastChoice.value = candidate
+  current.value = candidate   // ← これが必要！！
+  return candidate
 }
+
+
+
+
 
 // ▼ 手放す
 const drop = () => {
