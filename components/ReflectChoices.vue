@@ -40,19 +40,13 @@ onMounted(() => {
 .floating-text {
   font-size: 20px;
   font-weight: 300;
-  color: rgba(40, 50, 60, 0.75);
-  cursor: pointer;
-  transition: 
-    color 0.2s ease,
-    transform 0.2s ease,
-    opacity 0.2s ease;
-  line-height: 1.8;
-  letter-spacing: 0.02em;
-
-  /* ゆらぎ */
+  color: rgba(40, 50, 60, 0.35); /* ← 75% → 35% に変更 */
+  pointer-events: none; /* ← クリック無効化（背景化） */
+  transition: opacity 0.2s ease;
   position: relative;
   top: calc(-4px + (8px * var(--rand, 0)));
 }
+
 
 .floating-text:hover {
   color: rgba(40, 50, 60, 0.95);

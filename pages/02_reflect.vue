@@ -1,63 +1,72 @@
 <template>
-  <div class="reflect-container">
-    <h1>Reflect（仮）</h1>
+  <div class="selflect-bg">
+    <div class="reflect-container">
 
-    <!-- choices が 2つ以上あるとき -->
-    <div v-if="choices.length > 1">
-      <p>どちらにする？</p>
-      <h2>{{ current }}</h2>
+      <!-- ▼ 浮遊テキスト（背景レイヤー） -->
+      <client-only>
+        <ReflectChoices :choices="choices" />
+      </client-only>
 
-      <!-- 上段：手放す / まだ迷う -->
-      <div class="upper-buttons">
-        <button @click="drop">手放す</button>
-        <button @click="pickRandom">まだ迷う</button>
-      </div>
+      <!-- ▼ ここから下は今までの Reflect の UI（核） -->
+      <div v-if="choices.length > 1">
+        <p>どちらにする？</p>
+        <h2>{{ current }}</h2>
 
-      <!-- 下段：これがいい -->
-      <div class="lower-button">
-        <button @click="chooseThis">これがいい</button>
-      </div>
-    </div>
+        <div class="upper-buttons">
+          <button @click="drop">手放す</button>
+          <button @click="pickRandom">まだ迷う</button>
+        </div>
 
-    <!-- choices が 1つだけになったとき -->
-    <div v-else>
-      <p>最後の1つになりました</p>
-      <h2>{{ choices[0] }}</h2>
-
-      <button @click="decide">決定へ</button>
-    </div>
-
-    <!-- ▼ 確認ダイアログ -->
-    <div v-if="showConfirm" class="confirm-dialog">
-      <div class="dialog-content">
-        <p>これにする？</p>
-        <h3>{{ selectedChoice }}</h3>
-
-        <div class="dialog-buttons">
-          <button @click="confirmChoice">決める</button>
-          <button @click="cancelConfirm">まだ迷う</button>
+        <div class="lower-button">
+          <button @click="chooseThis">これがいい</button>
         </div>
       </div>
+
+      <div v-else>
+        <p>最後の1つになりました</p>
+        <h2>{{ choices[0] }}</h2>
+
+        <button @click="decide">決定へ</button>
+      </div>
+
+      <!-- ▼ 確認ダイアログ（そのまま） -->
+      <div v-if="showConfirm" class="confirm-dialog">
+        <div class="dialog-content">
+          <p>これにする？</p>
+          <h3>{{ selectedChoice }}</h3>
+
+          <div class="dialog-buttons">
+            <button @click="confirmChoice">決める</button>
+            <button @click="cancelConfirm">まだ迷う</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
 
+
 <script setup>
+import { onMounted, ref } from "vue"
+import { useState } from "#imports"
+
+/* ▼ デバッグ用（そのまま残す） */
 onMounted(() => {
   console.log("Reflect に来たときの choices:", choices.value)
 })
 
+/* ▼ 状態管理（元のまま） */
+const choices = useState("choices", () => [])
 
-const choices = useState("choices")
 const current = useState("current", () => null)
 
-// ▼ 確認ダイアログ用
 const showConfirm = ref(false)
 const selectedChoice = ref(null)
 
-// ▼ ランダムに1つ選ぶ
 const lastChoice = useState("lastChoice", () => null)
 
+/* ▼ ランダムに1つ選ぶ（元のまま） */
 const pickRandom = () => {
   if (choices.value.length === 0) return null
   if (choices.value.length === 1) {
@@ -75,23 +84,23 @@ const pickRandom = () => {
   } while (candidate === lastChoice.value && tries < 5)
 
   lastChoice.value = candidate
-  current.value = candidate // ← これが必要！！
+  current.value = candidate
   return candidate
 }
 
-// ▼ 手放す
+/* ▼ 手放す（元のまま） */
 const drop = () => {
   choices.value = choices.value.filter((c) => c !== current.value)
   pickRandom()
 }
 
-// ▼ 「これがいい」押したとき
-const chooseThis = () => {
-  selectedChoice.value = current.value
+/* ▼ ReflectChoices から選択されたとき（新規追加） */
+const handleSelect = (choice) => {
+  selectedChoice.value = choice
   showConfirm.value = true
 }
 
-// ▼ ダイアログ → 決める
+/* ▼ ダイアログ → 決める（元のまま） */
 const confirmChoice = () => {
   navigateTo({
     path: "/03_result",
@@ -99,13 +108,13 @@ const confirmChoice = () => {
   })
 }
 
-// ▼ ダイアログ → まだ迷う
+/* ▼ ダイアログ → まだ迷う（元のまま） */
 const cancelConfirm = () => {
   showConfirm.value = false
   selectedChoice.value = null
 }
 
-// ▼ 最後の1つになったときの決定
+/* ▼ 最後の1つになったときの決定（元のまま） */
 const decide = () => {
   navigateTo({
     path: "/03_result",
@@ -113,7 +122,7 @@ const decide = () => {
   })
 }
 
-// ▼ Reflect に来た瞬間に current をセット
+/* ▼ Reflect に来た瞬間の初期化（元のまま） */
 onMounted(() => {
   if (!current.value) {
     pickRandom()
@@ -126,18 +135,7 @@ onMounted(() => {
   padding: 20px;
 }
 
-/* ボタン配置（仮） */
-.upper-buttons {
-  display: flex;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.lower-button {
-  margin-top: 24px;
-}
-
-/* ダイアログ（仮） */
+/* ▼ ダイアログ（元のまま） */
 .confirm-dialog {
   position: fixed;
   inset: 0;
