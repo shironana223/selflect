@@ -90,7 +90,7 @@ watch(choices, async (newVal) => {
           path: "/03_result",
           query: { choice: newVal[0] }
         })
-      }, 1000)
+      }, 300)
     }, 60)
   }
 })
@@ -105,7 +105,7 @@ const chooseThis = () => {
       path: "/03_result",
       query: { choice: current.value }
     })
-  }, 1000)
+  }, 300)
 }
 
 /* ▼ decide はもう使わない（残してもいいけど呼ばれない） */

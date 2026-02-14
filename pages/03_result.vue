@@ -1,30 +1,40 @@
 <template>
-  <div class="result-container">
-    <h1>結果</h1>
+  <div class="result-wrapper">
 
-    <div v-if="finalChoice">
-      <p>あなたが残したのはこれです</p>
-      <h2>{{ finalChoice }}</h2>
+<div v-if="finalChoice">
 
-      <p class="message">また迷ったら、いつでもどうぞ。</p>
+  <!-- ① 最初に出す -->
+  <p class="fade-step step1">あなたが残したのは</p>
 
-      <div class="memo-area">
-        <textarea
-          v-model="memo"
-          placeholder="そっとひとこと"
-          :disabled="alreadySaved"
-        ></textarea>
+  <!-- ② 次に出す（選択肢） -->
+  <h2 class="fade-step step2">{{ finalChoice }}</h2>
 
-        <button @click="saveLog" :disabled="alreadySaved">
-          {{ alreadySaved ? "保存済み" : "保存する" }}
-        </button>
-      </div>
+  <!-- ③ 次に出す（メッセージ） -->
+  <p class="message fade-step step3">また迷ったら、いつでもどうぞ。</p>
 
-      <div class="buttons">
-        <button @click="retry">もう一度やってみる</button>
-        <button @click="reset">最初から入力する</button>
-      </div>
+  <!-- ④ メモ欄とボタン類を “まとめて” フェード -->
+  <div class="fade-step step4">
+    <div class="memo-area">
+      <textarea
+        v-model="memo"
+        placeholder="そっとひとこと"
+        :disabled="alreadySaved"
+      ></textarea>
+
+      <button @click="saveLog" :disabled="alreadySaved">
+        {{ alreadySaved ? "保存済み" : "保存する" }}
+      </button>
     </div>
+
+    <div class="buttons">
+      <button @click="retry">もう一度やってみる</button>
+      <button @click="reset">最初から入力する</button>
+    </div>
+  </div>
+
+</div>
+
+
 
     <div v-else>
       <p>選択肢が見つかりませんでした。</p>
@@ -145,4 +155,36 @@ textarea:disabled {
   flex-direction: column;
   gap: 12px;
 }
+
+.fade-in {
+  animation: fadeInResult 0.0s ease forwards;
+}
+
+@keyframes fadeInResult {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-step {
+  opacity: 0;
+  animation: fadeInResult 1s ease forwards;
+}
+
+.step1 { animation-delay: 0.8s; }
+.step2 { animation-delay: 2.8s;
+animation-duration: 2.0s; }
+.step3 { animation-delay: 5.4s; }
+.step4 { animation-delay: 6.8s;
+animation-duration: 0.8s; }
+
+@keyframes fadeInResult {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
 </style>
