@@ -5,40 +5,42 @@
     <div v-if="loading">読み込み中…</div>
 
     <transition-group name="list" tag="ul">
-  <li
-    v-for="log in logs"
-    :key="log.id"
-    :id="`log-${log.id}`"
-    v-show="!log.deleted"
-  >
-<strong>{{ log.choice }}</strong>
+      <li
+        v-for="log in logs"
+        :key="log.id"
+        :id="`log-${log.id}`"
+        v-show="!log.deleted"
+      >
+        <strong>{{ log.choice }}</strong>
 
-<!-- メモ表示 or 編集 -->
-<div v-if="editingId !== log.id" class="memo">
-  {{ log.memo }}
-</div>
-<input
-  v-else
-  v-model="editMemo"
-  class="memo-edit-input"
-/>
+        <!-- メモ表示 or 編集 -->
+        <div v-if="editingId !== log.id" class="memo">
+          {{ log.memo }}
+        </div>
+        <input v-else v-model="editMemo" class="memo-edit-input" />
 
-<div class="date">{{ formatDate(log.date) }}</div>
+        <div class="date">{{ formatDate(log.date) }}</div>
 
-<!-- 編集ボタン or 保存ボタン -->
-<button v-if="editingId !== log.id" @click="startEdit(log)">
-  ✏️
-</button>
-<button v-else @click="saveEdit(log.id)">
-  💾
-</button>
+        <!-- 編集ボタン or 保存ボタン -->
+        <div class="icon-row">
+        <button
+          v-if="editingId !== log.id"
+          class="icon-btn edit-btn"
+          @click="startEdit(log)"
+        >
+          ✏️
+        </button>
 
-<button class="delete-btn" @click="deleteLog(log.id)">
-  手放す
-</button>
+        <button v-else class="icon-btn save-btn" @click="saveEdit(log.id)">
+          💾
+        </button>
 
-  </li>
-</transition-group>
+        <button class="icon-btn delete-btn" @click="deleteLog(log.id)">
+          🗑
+        </button>
+        </div>
+      </li>
+    </transition-group>
 
     <button class="home-btn" @click="goHome">ホームに戻る</button>
   </div>
@@ -136,7 +138,9 @@ const formatDate = (date) => {
 </script>
 
 <style scoped>
-.list-move { transition: transform 0.4s ease; }
+.list-move {
+  transition: transform 0.4s ease;
+}
 
 .logs-page {
   padding: 20px;
@@ -167,21 +171,6 @@ li {
   color: #888;
 }
 
-.delete-btn {
-  margin-top: 10px;
-  background: #f5e6e6;
-  color: #a33;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.delete-btn:hover {
-  background: #f2dada;
-}
-
 .home-btn {
   margin-top: 24px;
   padding: 10px 16px;
@@ -196,4 +185,49 @@ li {
   transform: translateY(4px);
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
+.icon-btn {
+  width: 36px;
+  height: 32px;
+  border-radius: 10px; /* 角丸四角 */
+  border: none;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  line-height: 1;
+  padding: 0;
+}
+
+/* 編集ボタン（✏️） */
+.edit-btn {
+  background: #fff7e6;
+  color: #c47a00;
+}
+
+/* 保存ボタン（💾） */
+.save-btn {
+  background: #e6f4ff;
+  color: #0066aa;
+}
+
+/* 削除ボタン（🗑） */
+.delete-btn {
+  background: #fdecec;
+  color: #b33a3a;
+}
+
+/* hover（世界観壊さない程度に） */
+.icon-btn:hover {
+  opacity: 0.85;
+}
+
+
+.icon-row {
+  display: flex;
+  gap: 6px; /* ← ボタン同士の余白 */
+  align-items: center;
+}
+
 </style>

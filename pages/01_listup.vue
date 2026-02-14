@@ -11,29 +11,31 @@
     <ul>
       <li v-for="(c, i) in choices" :key="i">
         <span v-if="editingIndex !== i">{{ c }}</span>
-        <input
-          v-else
-          v-model="input"
-          @keyup.enter="saveEdit"
-        />
-
-        <button v-if="editingIndex !== i" @click="startEdit(i)">✏️</button>
-        <button v-else @click="saveEdit">💾</button>
-
-        <button @click="removeChoice(i)">🗑</button>
+        <input v-else v-model="input" @keyup.enter="saveEdit" />
+        <div class="icon-row">
+          <button class="icon-btn edit-btn" @click="startEdit(i)">✏️</button>
+          <button
+            class="icon-btn save-btn"
+            v-if="editingIndex === i"
+            @click="saveEdit"
+          >
+            💾
+          </button>
+          <button class="icon-btn delete-btn" @click="removeChoice(i)">
+            🗑
+          </button>
+        </div>
       </li>
     </ul>
 
-    <button @click="goFloat" :disabled="choices.length < 2">
-      準備できた
-    </button>
+    <button @click="goFloat" :disabled="choices.length < 2">準備できた</button>
   </div>
 </template>
 
 <script setup>
-const input = ref('')
-const choices = useState('choices', () => [])
-const originalChoices = useState("originalChoices", () => [])  // ← 追加！
+const input = ref("")
+const choices = useState("choices", () => [])
+const originalChoices = useState("originalChoices", () => []) // ← 追加！
 
 const addChoice = () => {
   if (editingIndex.value !== null) {
@@ -50,12 +52,12 @@ const addChoice = () => {
   }
 
   choices.value.push(trimmed)
-  input.value = ''
+  input.value = ""
 }
 
 const goFloat = () => {
-  originalChoices.value = [...choices.value]   // ← ここが大事！
-  navigateTo('/_float')
+  originalChoices.value = [...choices.value] // ← ここが大事！
+  navigateTo("/_float")
 }
 
 const editingIndex = ref(null)
@@ -69,17 +71,66 @@ const saveEdit = () => {
   const trimmed = input.value.trim()
   if (!trimmed) return
 
-  if (choices.value.includes(trimmed) && trimmed !== choices.value[editingIndex.value]) {
+  if (
+    choices.value.includes(trimmed) &&
+    trimmed !== choices.value[editingIndex.value]
+  ) {
     alert("同じ選択肢がすでにあります")
     return
   }
 
   choices.value[editingIndex.value] = trimmed
   editingIndex.value = null
-  input.value = ''
+  input.value = ""
 }
 
 const removeChoice = (i) => {
   choices.value.splice(i, 1)
 }
 </script>
+
+<style scoped>
+.icon-row {
+  display: flex;
+  gap: 6px; /* ← ボタン同士の余白 */
+  align-items: center;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 32px;
+  border-radius: 10px; /* 角丸四角 */
+  border: none;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  line-height: 1;
+  padding: 0;
+}
+
+/* 編集ボタン（✏️） */
+.edit-btn {
+  background: #fff7e6;
+  color: #c47a00;
+}
+
+/* 保存ボタン（💾） */
+.save-btn {
+  background: #e6f4ff;
+  color: #0066aa;
+}
+
+/* 削除ボタン（🗑） */
+.delete-btn {
+  background: #fdecec;
+  color: #b33a3a;
+}
+
+/* hover（世界観壊さない程度に） */
+.icon-btn:hover {
+  opacity: 0.85;
+}
+</style>
