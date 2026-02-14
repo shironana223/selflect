@@ -1,48 +1,39 @@
 <script setup>
+import { onMounted } from "vue"
 const supabase = useSupabase()
 
-// ログがあるかどうか
-const hasLogs = ref(false)
-const loading = ref(true)
+const logs = useState("logs", () => [])
+const hasLogs = computed(() => logs.value.length > 0)
 
 onMounted(async () => {
-  // 1件だけ取得して存在チェック（高速 & 安全）
   const { data, error } = await supabase
     .from("logs")
-    .select("id")
-    .limit(1)
+    .select("*")
+    .order("date", { ascending: false })
 
   if (!error) {
-    hasLogs.value = data.length > 0
+    logs.value = data
   }
-
-  loading.value = false
 })
 
-// ログ画面へ
-const goToLogs = () => {
-  navigateTo("/logs")
+const goToLog = () => {
+  if (hasLogs.value) {
+    navigateTo("/logs")
+  }
 }
 </script>
 
+
+
 <template>
   <div class="home">
-
     <h1 class="title">Selflect</h1>
 
-    <button @click="navigateTo('/01_listup')">
-      はじめる
-    </button>
+    <button @click="navigateTo('/01_listup')">はじめる</button>
 
-    <!-- ログがあるときだけ表示 -->
-    <button
-      v-if="hasLogs && !loading"
-      @click="goToLogs"
-      class="logs-btn"
-    >
-      選んだ瞬間たちを見る
+    <button @click="goToLog">
+      {{ hasLogs ? "選んだ瞬間たちを見る" : "まだ瞬間はありません" }}
     </button>
-
   </div>
 </template>
 
