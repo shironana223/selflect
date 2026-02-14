@@ -13,7 +13,9 @@
           v-model="memo"
           placeholder="ひとことメモ（任意）"
         ></textarea>
-        <button @click="saveLog">保存する</button>
+        <button @click="saveLog" :disabled="alreadySaved">
+  {{ alreadySaved ? "保存済み" : "保存する" }}
+</button>
       </div>
 
       <div class="buttons">
@@ -30,6 +32,54 @@
 </template>
 
 <script setup>
+const alreadySaved = ref(false)
+onMounted(async () => {
+  // localStorage に同じ choice がある？
+  if (logs.value.some(log => log.choice === finalChoice)) {
+    alreadySaved.value = true
+    return
+  }
+
+
+  // Supabase に同じ choice がある？
+  const { data: existing } = await supabase
+    .from("logs")
+    .select("*")
+    .eq("choice", finalChoice)
+    .maybeSingle()
+
+  if (existing) {
+    alreadySaved.value = true
+  }
+})
+
+const saveLog = async () => {
+  if (alreadySaved.value) return  // ← 2回目は保存しない
+
+  const newLog = {
+    choice: finalChoice,
+    memo: memo.value,
+    date: new Date().toISOString()
+  }
+
+  // localStorage
+  logs.value = [...logs.value, newLog]
+
+  // Supabase
+  const { error } = await supabase
+    .from("logs")
+    .insert(newLog)
+
+  if (error) {
+    console.error("Supabase 保存エラー:", error)
+    alert("保存しました（クラウド保存は後で再試行されます）")
+  } else {
+    alert("保存しました")
+  }
+
+  alreadySaved.value = true
+}
+
 import { useLocalStorage } from '@vueuse/core'
 const supabase = useSupabaseClient()
 
@@ -44,31 +94,6 @@ const memo = ref("")
 // localStorage 永続化
 const logs = useLocalStorage("logs", [])
 
-// 保存処理
-const saveLog = async () => {
-  const newLog = {
-    choice: finalChoice,
-    memo: memo.value,
-    date: new Date().toISOString()
-  }
-
-  // ▼ 1. localStorage に保存（安全）
-  logs.value = [...logs.value, newLog]
-
-  // ▼ 2. Supabase に保存（外部サービス）
-  const { error } = await supabase
-    .from("logs")
-    .insert(newLog)
-
-  if (error) {
-    console.error("Supabase 保存エラー:", error)
-    alert("保存しました（※ネットワークの都合でクラウド保存は後で再試行されます）")
-  } else {
-    alert("保存しました")
-  }
-
-  memo.value = ""
-}
 
 // もう一度やる
 const retry = () => {
