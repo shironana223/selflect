@@ -9,8 +9,24 @@
     />
 
     <ul>
-      <li v-for="(c, i) in choices" :key="i">{{ c }}</li>
-    </ul>
+  <li v-for="(c, i) in choices" :key="i">
+    <!-- 編集中の項目だけ input に -->
+    <span v-if="editingIndex !== i">{{ c }}</span>
+    <input
+      v-else
+      v-model="input"
+      @keyup.enter="saveEdit"
+    />
+
+    <!-- 編集ボタン or 保存ボタン -->
+    <button v-if="editingIndex !== i" @click="startEdit(i)">✏️</button>
+    <button v-else @click="saveEdit">💾</button>
+
+    <!-- 削除ボタン -->
+    <button @click="removeChoice(i)">🗑</button>
+  </li>
+</ul>
+
 
     <button @click="goFloat" :disabled="choices.length < 2">
       準備できた
@@ -23,6 +39,12 @@ const input = ref('')
 const choices = useState('choices', () => [])
 
 const addChoice = () => {
+  // 編集中なら保存に切り替え
+  if (editingIndex.value !== null) {
+    saveEdit()
+    return
+  }
+
   const trimmed = input.value.trim()
   if (!trimmed) return
 
@@ -35,5 +57,37 @@ const addChoice = () => {
   input.value = ''
 }
 
+
 const goFloat = () => navigateTo('/_float')
+
+// 編集中の index（編集していないときは null）
+const editingIndex = ref(null)
+
+// 編集開始
+const startEdit = (i) => {
+  editingIndex.value = i
+  input.value = choices.value[i]
+}
+
+// 編集保存
+const saveEdit = () => {
+  const trimmed = input.value.trim()
+  if (!trimmed) return
+
+  // 重複チェック（自分自身は除外）
+  if (choices.value.includes(trimmed) && trimmed !== choices.value[editingIndex.value]) {
+    alert("同じ選択肢がすでにあります")
+    return
+  }
+
+  choices.value[editingIndex.value] = trimmed
+  editingIndex.value = null
+  input.value = ''
+}
+
+// 削除
+const removeChoice = (i) => {
+  choices.value.splice(i, 1)
+}
+
 </script>
