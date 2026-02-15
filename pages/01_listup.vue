@@ -2,16 +2,28 @@
   <div class="listup-container">
     <h1>選択肢を入力（仮）</h1>
 
+    <!-- 追加用 input -->
     <input
       v-model="input"
       @keyup.enter="addChoice"
       placeholder="選択肢を入力して Enter"
+      class="add-input"
     />
 
-    <ul>
+    <ul class="choice-list">
       <li v-for="(c, i) in choices" :key="i" class="choice-row">
-        <span v-if="editingIndex !== i">{{ c }}</span>
-        <input v-else v-model="input" @keyup.enter="saveEdit" />
+
+        <!-- 編集中かどうかで切り替え -->
+        <template v-if="editingIndex === i">
+          <input
+            v-model="editValue"
+            @keyup.enter="saveEdit"
+            class="edit-input"
+          />
+        </template>
+        <template v-else>
+          <span class="choice-text">{{ c }}</span>
+        </template>
 
         <div class="icon-row">
           <button
@@ -21,7 +33,14 @@
           >
             ✏️
           </button>
-          <button v-else class="icon-btn save-btn" @click="saveEdit">💾</button>
+          <button
+            v-else
+            class="icon-btn save-btn"
+            @click="saveEdit"
+          >
+            💾
+          </button>
+
           <button class="icon-btn delete-btn" @click="removeChoice(i)">
             🗑
           </button>
@@ -29,14 +48,17 @@
       </li>
     </ul>
 
-    <button @click="goFloat('/_float')">準備できた</button>
+    <button class="ready-btn" @click="goFloat">準備できた</button>
   </div>
 </template>
 
 <script setup>
 const input = ref("")
+const editValue = ref("") // 編集用
 const choices = useState("choices", () => [])
-const originalChoices = useState("originalChoices", () => []) // ← 追加！
+const originalChoices = useState("originalChoices", () => [])
+
+const editingIndex = ref(null)
 
 const addChoice = () => {
   if (editingIndex.value !== null) {
@@ -56,20 +78,13 @@ const addChoice = () => {
   input.value = ""
 }
 
-const goFloat = () => {
-  originalChoices.value = [...choices.value] // ← ここが大事！
-  navigateTo("/_float")
-}
-
-const editingIndex = ref(null)
-
 const startEdit = (i) => {
   editingIndex.value = i
-  input.value = choices.value[i]
+  editValue.value = choices.value[i]
 }
 
 const saveEdit = () => {
-  const trimmed = input.value.trim()
+  const trimmed = editValue.value.trim()
   if (!trimmed) return
 
   if (
@@ -82,109 +97,123 @@ const saveEdit = () => {
 
   choices.value[editingIndex.value] = trimmed
   editingIndex.value = null
-  input.value = ""
+  editValue.value = ""
 }
 
 const removeChoice = (i) => {
   choices.value.splice(i, 1)
 }
+
+const goFloat = () => {
+  originalChoices.value = [...choices.value]
+  navigateTo("/_float")
+}
 </script>
 
 <style scoped>
-div {
-  padding: 10px 24px;
+/* 全体のレイアウト */
+.listup-container {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
-input {
+
+/* 追加用 input */
+.add-input {
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 12px 14px;
   font-size: 16px;
 }
 
-.icon-row {
-  display: flex;
-  gap: 6px; /* ← ボタン同士の余白 */
-  align-items: center;
-}
-/* li を左右2カラムにする */
-.choice-row,
-.log-row {
-  display: flex;
-  align-items: center;
-  gap: 12px; /* ← テキストとボタンの距離をここで調整 */
-}
-
-/* 左側のテキスト部分 */
-.log-main {
+/* 選択肢リスト */
+.choice-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 12px; /* ← カード同士の呼吸 */
 }
 
-/* ボタンを横並びにする */
+/* カード */
+.choice-row {
+  background: #f7f7f7;
+  padding: 14px 16px;
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 編集用 input（カード内） */
+.edit-input {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  padding: 0;
+  outline: none;
+}
+
+/* テキスト */
+.choice-text {
+  font-size: 16px;
+}
+
+/* アイコン行 */
 .icon-row {
   display: flex;
   gap: 6px;
 }
 
+/* アイコンボタン */
 .icon-btn {
   width: 36px;
   height: 32px;
-  border-radius: 10px; /* 角丸四角 */
+  border-radius: 10px;
   border: none;
   font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-
   line-height: 1;
   padding: 0;
 }
 
-/* 編集ボタン（✏️） */
 .edit-btn {
   background: #fff7e6;
   color: #c47a00;
 }
 
-/* 保存ボタン（💾） */
 .save-btn {
   background: #e6f4ff;
   color: #0066aa;
 }
 
-/* 削除ボタン（🗑） */
 .delete-btn {
   background: #fdecec;
   color: #b33a3a;
 }
 
-/* hover（世界観壊さない程度に） */
 .icon-btn:hover {
   opacity: 0.85;
 }
 
-button {
+/* 準備できたボタン */
+.ready-btn {
+  background: none;
+  border: 1px solid #ddd;
+  padding: 10px 0;
+  font-size: 16px;
   border-radius: 8px;
   opacity: 0.7;
   transition: opacity 0.2s ease, transform 0.3s ease;
 }
-button:hover {
+
+.ready-btn:hover {
   opacity: 0.6;
   transform: translateY(1px);
-}
-
-.listup-container {
-  max-width: 420px; /* ← タイトル画面と統一 */
-  margin: 0 auto;
-  padding: 32px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px; /* 全体の呼吸 */
-}
-
-.choice-row { /* 選択肢 */
-  background: #f7f7f7; padding: 12px 14px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
 }
 </style>
