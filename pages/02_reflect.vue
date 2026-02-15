@@ -21,7 +21,7 @@
         <button class="btn subtle" @click="pickRandom">まだ迷う</button>
       </div>
 
-      <!-- ▼ 「これがいい」は控えめ -->
+      <!-- ▼ 「これがいい」幅を狭くして控えめに -->
       <button class="btn main" @click="chooseThis">これがいい</button>
     </div>
 
@@ -33,7 +33,7 @@
     <!-- ▼ 白フェード -->
     <div v-if="isFading" class="white-fade"></div>
 
-    <!-- ▼ 手放す時の薄い隠しレイヤー -->
+    <!-- ▼ 手放す時の一瞬の隠しレイヤー（ぼかし削除） -->
     <div v-if="isHiding" class="hide-layer"></div>
 
   </div>
@@ -85,7 +85,7 @@ const drop = async () => {
   current.value = null
   await nextTick()
 
-  // ▼ 薄い白膜で隠す（画面が切れない）
+  // ▼ 一瞬だけ画面を隠す（残りの選択肢を見せない）
   isHiding.value = true
 
   setTimeout(() => {
@@ -95,8 +95,8 @@ const drop = async () => {
     // ▼ 次の current がセットされたあとに表示
     setTimeout(() => {
       isHiding.value = false
-    }, 80)
-  }, 120)
+    }, 60)
+  }, 100)
 }
 
 /* ▼ choices が1つになったら current を非表示にしてフェード遷移 */
@@ -194,9 +194,10 @@ const chooseThis = () => {
   opacity: 0.65;
 }
 
-/* ▼ 「これがいい」は控えめ */
+/* ▼ 「これがいい」幅を狭くして控えめに */
 .btn.main {
-  width: 100%;
+  width: 160px; /* ← 狭くした */
+  margin: 0 auto;
   background: #f5f5f5;
   opacity: 0.75;
 }
@@ -226,12 +227,11 @@ const chooseThis = () => {
   to   { background: rgba(255, 255, 255, 1); }
 }
 
-/* ▼ 手放す時の薄い隠しレイヤー（画面が切れない） */
+/* ▼ 手放す時の薄い隠しレイヤー（ぼかし削除） */
 .hide-layer {
   position: fixed;
   inset: 0;
-  background: rgba(255, 255, 255, 0.4); /* ← 薄い白膜 */
-  backdrop-filter: blur(2px);           /* ← ぼかしで自然に */
+  background: rgba(255, 255, 255, 0.4); /* ← ぼかしなしの薄膜 */
   z-index: 10;
 }
 </style>
