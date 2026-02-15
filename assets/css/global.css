@@ -1,15 +1,90 @@
-.selflect-bg {
-  background: linear-gradient(to bottom, #E9EFF3, #F4F7F9);
-  position: relative;
-  overflow: hidden;
+/* ----------------------------------------
+   Selflect global.css（白の世界観）
+   余白・静けさ・思考の透明感
+----------------------------------------- */
+
+* {
+  box-sizing: border-box;
 }
 
-/* Fog Layer（中粒ノイズ） */
-.selflect-bg::before {
-  content: "";
-  position: absolute;
+body {
+  margin: 0;
+  padding: 0;
+  background: #ffffff; /* ← 完全な白 */
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+    "Hiragino Sans", "Noto Sans JP", sans-serif;
+  color: #222;
+}
+
+/* ページの縦ライン（各画面で使える） */
+.page-wrapper {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* 入力欄・ボタンの統一感 */
+input,
+textarea,
+button {
+  font-family: inherit;
+  outline: none;
+  border-radius: 8px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* ボタン：白の世界観に合わせて“軽い” */
+button {
+  cursor: pointer;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  opacity: 0.85;
+}
+
+button:hover {
+  opacity: 0.65;
+  transform: translateY(1px);
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.35;
+  transform: none;
+}
+
+/* 入力欄：白の世界観に合わせて“静か” */
+input,
+textarea {
+  border: 1px solid #ddd;
+  background: #fafafa;
+}
+
+::placeholder {
+  color: #aaa;
+  opacity: 0.8;
+}
+
+/* Reflect / Result のフェード基礎 */
+.fade-only-enter-from,
+.fade-only-leave-to {
+  opacity: 0;
+}
+
+.fade-only-enter-active,
+.fade-only-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+/* ページ遷移の白フェード（白背景でも自然） */
+.white-fade {
+  position: fixed;
   inset: 0;
-  background-image: url('/noise-medium.svg'); /* SVG ノイズを置く */
-  opacity: 0.025; /* 2.5%：存在感あり、邪魔しない */
-  pointer-events: none;
+  background: rgba(255, 255, 255, 0);
+  animation: fadeIn 1s forwards;
+  z-index: 999;
+}
+
+@keyframes fadeIn {
+  from { background: rgba(255, 255, 255, 0); }
+  to   { background: rgba(255, 255, 255, 1); }
 }

@@ -15,7 +15,7 @@
             :disabled="alreadySaved"
           ></textarea>
 
-          <button class="btn" @click="saveLog" :disabled="alreadySaved">
+          <button class="btn save-btn" @click="saveLog" :disabled="alreadySaved">
             {{ alreadySaved ? "保存済み" : "保存する" }}
           </button>
         </div>
@@ -79,9 +79,9 @@ const saveLog = async () => {
 
   if (error) {
     console.error("Supabase 保存エラー:", error)
-    alert("この瞬間を残しました（クラウド保存は後で再試行されます）")
+    alert("この瞬間を記録しました（クラウド保存は後で再試行されます）")
   } else {
-    alert("この瞬間を残しました")
+    alert("この瞬間を記録しました")
   }
 
   alreadySaved.value = true
@@ -109,7 +109,7 @@ const reset = () => {
 
 <style scoped>
 .result-wrapper {
-  padding: 32px 24px; /* ← 上部余白を少し詰めた */
+  padding: 24px 24px; /* ← 上部余白を少し詰めた */
   text-align: center;
   min-height: 100vh;
   display: flex;
@@ -136,15 +136,19 @@ const reset = () => {
 .step2 {
   font-size: 32px;
   font-weight: 600;
-  margin-bottom: 40px; /* ← 主役として余白を広めに */
+  margin-bottom: 48px; /* ← 主役として余白を広めに */
   color: #222;
 }
 
 /* ▼ メッセージ（添える） */
 .step3 {
-  font-size: 14px;
-  opacity: 0.75;
-  margin-bottom: 36px; /* ← 下げた */
+  font-size: 13.5px;
+  opacity: 0.6;
+  margin-bottom: 42px; /* ← 下げた */
+}
+
+.step4 {
+  opacity: 0.85;
 }
 
 /* ▼ メモ欄（小さめ） */
@@ -157,14 +161,14 @@ const reset = () => {
 
 textarea {
   width: 100%;
-  max-width: 280px; /* ← 横幅を狭くして優しく */
+  max-width: 240px; /* ← 280 → 240 に */
   margin: 0 auto;
-  min-height: 60px;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  font-size: 14px;
+  min-height: 48px; /* ← 60 → 48 に */
+  padding: 8px; /* ← 10 → 8 に */
+  border-radius: 6px; /* ← 8 → 6 に */
+  font-size: 13px; /* ← 14 → 13 に */
   background: #fafafa;
+  border: 1px solid #ddd;
 }
 
 textarea:disabled {
@@ -173,15 +177,15 @@ textarea:disabled {
 
 /* ▼ ボタン（優しいデザイン） */
 .btn {
-  min-width: 180px;   /* ← 最小幅を決める */
-  max-width: 180px;   /* ← 最大幅も同じにする（固定幅） */
-  margin: 0 auto;     /* ← 完全中央揃え */
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 15px;
+  min-width: 180px; /* ← 最小幅を決める */
+  max-width: 180px; /* ← 最大幅も同じにする（固定幅） */
+  margin: 0 auto; /* ← 完全中央揃え */
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
   border: 1px solid #ddd;
   background: #fafafa;
-  opacity: 0.85;
+  opacity: 0.8;
   transition: opacity 0.2s ease;
 }
 
@@ -189,6 +193,7 @@ textarea:disabled {
   opacity: 0.65;
 }
 
+.save-btn { min-width: 120px; /* ← 150 → 120 に */ max-width: 120px; padding: 6px 12px; /* ← さらに控えめ */ font-size: 13px; /* ← 14 → 13 */ opacity: 0.75; /* ← 少し弱めに */ }
 
 /* ▼ ボタン群 */
 .buttons {

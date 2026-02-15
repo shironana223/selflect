@@ -10,11 +10,11 @@
       class="add-input"
     />
 
-    <!-- ▼ 修正：choices が 0 のときは押せない -->
+
     <button
       class="ready-btn"
       @click="goFloat"
-      :disabled="choices.length === 0"
+      :disabled="choices.length < 2"
     >
       準備できた
     </button>
