@@ -1,4 +1,6 @@
 <template>
+<div v-if="showFade" class="white-fade"></div>
+
   <div class="reflect-container">
 
     <div class="content" v-if="choices.length > 1">
@@ -40,6 +42,7 @@
 </template>
 
 <script setup>
+
 import { onMounted, ref, watch, nextTick } from "vue"
 import { useState } from "#imports"
 
@@ -128,6 +131,24 @@ const chooseThis = () => {
     })
   }, 300)
 }
+
+const showFade = ref(true)
+
+onMounted(() => {
+  // Reflect に入った瞬間、白 → 透明 にフェード
+  setTimeout(() => {
+    showFade.value = false
+  }, 600)
+})
+
+// ▼ 結果へ進むときも白フェード
+const goResult = () => {
+  showFade.value = true
+  setTimeout(() => {
+    navigateTo("/result")
+  }, 600)
+}
+
 </script>
 
 <style scoped>
@@ -233,4 +254,19 @@ width: 100px;
   background: rgba(255, 255, 255, 0.4); /* ← ぼかしなしの薄膜 */
   z-index: 10;
 }
+
+.white-fade {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  animation: fadeOut 0.6s ease forwards;
+  z-index: 999;
+  pointer-events: none;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
 </style>
