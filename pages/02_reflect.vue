@@ -175,13 +175,12 @@ const chooseThis = () => {
 .buttons {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 20px;
   margin: 40px 0 28px;
 }
 
 .btn {
 width: 100px;
-  margin: 0 auto;
   padding: 12px 18px;
   border-radius: 8px;
   font-size: 15px;
