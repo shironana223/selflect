@@ -10,15 +10,23 @@
       class="add-input"
     />
 
-    <ul class="choice-list">
-      <li v-for="(c, i) in choices" :key="i" class="choice-row">
+    <!-- 準備できたボタン（入力欄のすぐ下） -->
+    <button class="ready-btn" @click="goFloat">準備できた</button>
 
+    <ul class="choice-list">
+      <li
+        v-for="(c, i) in choices"
+        :key="i"
+        class="choice-row"
+        :class="{ editing: editingIndex === i }"
+      >
         <!-- 編集中かどうかで切り替え -->
         <template v-if="editingIndex === i">
           <input
             v-model="editValue"
             @keyup.enter="saveEdit"
             class="edit-input"
+            ref="editInput"
           />
         </template>
         <template v-else>
@@ -47,14 +55,12 @@
         </div>
       </li>
     </ul>
-
-    <button class="ready-btn" @click="goFloat">準備できた</button>
   </div>
 </template>
 
 <script setup>
 const input = ref("")
-const editValue = ref("") // 編集用
+const editValue = ref("")
 const choices = useState("choices", () => [])
 const originalChoices = useState("originalChoices", () => [])
 
@@ -108,6 +114,14 @@ const goFloat = () => {
   originalChoices.value = [...choices.value]
   navigateTo("/_float")
 }
+
+const editInput = ref(null)
+
+watch(editingIndex, () => {
+  nextTick(() => {
+    if (editInput.value) editInput.value.focus()
+  })
+})
 </script>
 
 <style scoped>
@@ -129,15 +143,35 @@ const goFloat = () => {
   font-size: 16px;
 }
 
+/* 準備できたボタン（入力欄と区別） */
+.ready-btn {
+  width: 160px;
+  margin: 0 auto;
+  background: #fafafa;
+  border: 1px solid #ccc;
+  padding: 10px 0;
+  font-size: 15px;
+  border-radius: 8px;
+  opacity: 0.8;
+  transition: opacity 0.2s ease, transform 0.3s ease;
+}
+.ready-btn:hover {
+  opacity: 0.6;
+  transform: translateY(1px);
+}
+
 /* 選択肢リスト */
 .choice-list {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* ← カード同士の呼吸 */
+  gap: 12px;
 }
 
 /* カード */
 .choice-row {
+  max-width: 360px;
+  margin: 0 auto;
+  width: 100%;
   background: #f7f7f7;
   padding: 14px 16px;
   border-radius: 10px;
@@ -145,6 +179,12 @@ const goFloat = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+/* 編集モードの視覚化 */
+.choice-row.editing {
+  background: #ffffff;
+  border: 1px solid #ddd;
 }
 
 /* 編集用 input（カード内） */
@@ -199,21 +239,5 @@ const goFloat = () => {
 
 .icon-btn:hover {
   opacity: 0.85;
-}
-
-/* 準備できたボタン */
-.ready-btn {
-  background: none;
-  border: 1px solid #ddd;
-  padding: 10px 0;
-  font-size: 16px;
-  border-radius: 8px;
-  opacity: 0.7;
-  transition: opacity 0.2s ease, transform 0.3s ease;
-}
-
-.ready-btn:hover {
-  opacity: 0.6;
-  transform: translateY(1px);
 }
 </style>
