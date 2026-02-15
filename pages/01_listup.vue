@@ -80,7 +80,7 @@ const addChoice = () => {
     return
   }
 
-  choices.value.push(trimmed)
+  choices.value.unshift(trimmed)
   input.value = ""
 }
 
