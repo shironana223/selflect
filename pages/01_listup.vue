@@ -10,8 +10,14 @@
       class="add-input"
     />
 
-    <!-- 準備できたボタン（入力欄のすぐ下） -->
-    <button class="ready-btn" @click="goFloat">準備できた</button>
+    <!-- ▼ 修正：choices が 0 のときは押せない -->
+    <button
+      class="ready-btn"
+      @click="goFloat"
+      :disabled="choices.length === 0"
+    >
+      準備できた
+    </button>
 
     <ul class="choice-list">
       <li
@@ -61,6 +67,8 @@
 <script setup>
 const input = ref("")
 const editValue = ref("")
+
+/* ▼ 修正：初期値を必ず [] にする */
 const choices = useState("choices", () => [])
 const originalChoices = useState("originalChoices", () => [])
 
@@ -110,8 +118,9 @@ const removeChoice = (i) => {
   choices.value.splice(i, 1)
 }
 
+/* ▼ 修正：必ず配列として保存する（retry が動くように） */
 const goFloat = () => {
-  originalChoices.value = [...choices.value]
+  originalChoices.value = [...choices.value]  // ← これが重要！
   navigateTo("/_float")
 }
 
@@ -158,6 +167,13 @@ watch(editingIndex, () => {
 .ready-btn:hover {
   opacity: 0.6;
   transform: translateY(1px);
+}
+
+/* ▼ disabled の見た目（世界観を壊さない） */
+.ready-btn:disabled {
+  opacity: 0.35;
+  transform: none;
+  pointer-events: none;
 }
 
 /* 選択肢リスト */
