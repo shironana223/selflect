@@ -169,7 +169,7 @@ watch(editingIndex, () => {
 
 /* カード */
 .choice-row {
-  max-width: 360px;
+  max-width: 300px;
   margin: 0 auto;
   width: 100%;
   background: #f7f7f7;
