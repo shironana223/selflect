@@ -179,13 +179,14 @@ const chooseThis = () => {
   margin: 40px 0 28px;
 }
 
-/* ▼ ボタンの静けさ */
 .btn {
-  padding: 10px 18px;
+width: 100px;
+  margin: 0 auto;
+  padding: 12px 18px;
   border-radius: 8px;
   font-size: 15px;
   border: 1px solid #ddd;
-  background: #fafafa;
+  background: #f5f5f5;
   opacity: 0.85;
   transition: opacity 0.2s ease;
 }
@@ -194,9 +195,8 @@ const chooseThis = () => {
   opacity: 0.65;
 }
 
-/* ▼ 「これがいい」幅を狭くして控えめに */
 .btn.main {
-  width: 160px; /* ← 狭くした */
+  width: 160px; 
   margin: 0 auto;
   background: #f5f5f5;
   opacity: 0.75;

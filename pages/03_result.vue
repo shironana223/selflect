@@ -1,44 +1,35 @@
 <template>
   <div class="result-wrapper">
+    <div class="result-inner" v-if="finalChoice">
+      <p class="fade-step step1">あなたが残したのは</p>
 
-<div v-if="finalChoice">
+      <h2 class="fade-step step2">{{ finalChoice }}</h2>
 
-  <!-- ① 最初に出す -->
-  <p class="fade-step step1">あなたが残したのは</p>
+      <p class="message fade-step step3">また迷ったら、いつでもどうぞ。</p>
 
-  <!-- ② 次に出す（選択肢） -->
-  <h2 class="fade-step step2">{{ finalChoice }}</h2>
+      <div class="fade-step step4">
+        <div class="memo-area">
+          <textarea
+            v-model="memo"
+            placeholder="そっとひとこと"
+            :disabled="alreadySaved"
+          ></textarea>
 
-  <!-- ③ 次に出す（メッセージ） -->
-  <p class="message fade-step step3">また迷ったら、いつでもどうぞ。</p>
+          <button class="btn" @click="saveLog" :disabled="alreadySaved">
+            {{ alreadySaved ? "保存済み" : "保存する" }}
+          </button>
+        </div>
 
-  <!-- ④ メモ欄とボタン類を “まとめて” フェード -->
-  <div class="fade-step step4">
-    <div class="memo-area">
-      <textarea
-        v-model="memo"
-        placeholder="そっとひとこと"
-        :disabled="alreadySaved"
-      ></textarea>
-
-      <button @click="saveLog" :disabled="alreadySaved">
-        {{ alreadySaved ? "保存済み" : "保存する" }}
-      </button>
+        <div class="buttons">
+          <button class="btn" @click="retry">もう一度やってみる</button>
+          <button class="btn" @click="reset">最初から入力する</button>
+        </div>
+      </div>
     </div>
-
-    <div class="buttons">
-      <button @click="retry">もう一度やってみる</button>
-      <button @click="reset">最初から入力する</button>
-    </div>
-  </div>
-
-</div>
-
-
 
     <div v-else>
       <p>選択肢が見つかりませんでした。</p>
-      <button @click="reset">最初から入力する</button>
+      <button class="btn" @click="reset">最初から入力する</button>
     </div>
   </div>
 </template>
@@ -103,11 +94,10 @@ const current = useState("current")
 const originalChoices = useState("originalChoices")
 
 const retry = () => {
-  choices.value = [...originalChoices.value]  // ← 元に戻す
+  choices.value = [...originalChoices.value] // ← 元に戻す
   current.value = null
   navigateTo("/02_reflect")
 }
-
 
 // ▼ 最初から
 const reset = () => {
@@ -118,19 +108,48 @@ const reset = () => {
 </script>
 
 <style scoped>
-.result-container {
-  padding: 20px;
+.result-wrapper {
+  padding: 32px 24px; /* ← 上部余白を少し詰めた */
   text-align: center;
+  min-height: 100vh;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 
-.message {
-  margin-top: 16px;
+/* ▼ 細い縦ライン */
+.result-inner {
+  max-width: 320px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ▼ 「あなたが残したのは」 */
+.step1 {
+  font-size: 18px;
+  font-weight: 500;
+  opacity: 0.75;
+  margin-bottom: 20px; /* ← 少し詰めた */
+}
+
+/* ▼ 結果（主役） */
+.step2 {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 40px; /* ← 主役として余白を広めに */
+  color: #222;
+}
+
+/* ▼ メッセージ（添える） */
+.step3 {
   font-size: 14px;
-  opacity: 0.8;
+  opacity: 0.75;
+  margin-bottom: 36px; /* ← 下げた */
 }
 
+/* ▼ メモ欄（小さめ） */
 .memo-area {
-  margin-top: 24px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -138,17 +157,40 @@ const reset = () => {
 
 textarea {
   width: 100%;
-  min-height: 80px;
-  padding: 12px;
+  max-width: 280px; /* ← 横幅を狭くして優しく */
+  margin: 0 auto;
+  min-height: 60px;
+  padding: 10px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  background: #fafafa;
 }
 
 textarea:disabled {
   opacity: 0.6;
-  background: #f5f5f5;
 }
 
+/* ▼ ボタン（優しいデザイン） */
+.btn {
+  min-width: 180px;   /* ← 最小幅を決める */
+  max-width: 180px;   /* ← 最大幅も同じにする（固定幅） */
+  margin: 0 auto;     /* ← 完全中央揃え */
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 15px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.btn:hover {
+  opacity: 0.65;
+}
+
+
+/* ▼ ボタン群 */
 .buttons {
   margin-top: 24px;
   display: flex;
@@ -156,8 +198,24 @@ textarea:disabled {
   gap: 12px;
 }
 
-.fade-in {
-  animation: fadeInResult 0.0s ease forwards;
+/* ▼ 呼吸感のあるフェード（速度ゆっくり・delay短め） */
+.fade-step {
+  opacity: 0;
+  animation: fadeInResult 1.6s ease forwards; /* ← 呼吸の速度 */
+}
+
+.step1 {
+  animation-delay: 0.4s;
+}
+.step2 {
+  animation-delay: 1s;
+  animation-duration: 3s;
+}
+.step3 {
+  animation-delay: 2.8s;
+}
+.step4 {
+  animation-delay: 3.6s;
 }
 
 @keyframes fadeInResult {
@@ -168,23 +226,4 @@ textarea:disabled {
     opacity: 1;
   }
 }
-
-.fade-step {
-  opacity: 0;
-  animation: fadeInResult 1s ease forwards;
-}
-
-.step1 { animation-delay: 0.8s; }
-.step2 { animation-delay: 2.8s;
-animation-duration: 2.0s; }
-.step3 { animation-delay: 5.4s; }
-.step4 { animation-delay: 6.8s;
-animation-duration: 0.8s; }
-
-@keyframes fadeInResult {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-
 </style>
