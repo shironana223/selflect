@@ -1,6 +1,6 @@
 <template>
   <div class="listup-container">
-    <h1>選択肢を入力（仮）</h1>
+    <h1>いまある選択肢</h1>
 
     <!-- 追加用 input -->
     <input
@@ -10,12 +10,7 @@
       class="add-input"
     />
 
-
-    <button
-      class="ready-btn"
-      @click="goFloat"
-      :disabled="choices.length < 2"
-    >
+    <button class="ready-btn" @click="goReflect" :disabled="choices.length < 2">
       準備できた
     </button>
 
@@ -47,13 +42,7 @@
           >
             ✏️
           </button>
-          <button
-            v-else
-            class="icon-btn save-btn"
-            @click="saveEdit"
-          >
-            💾
-          </button>
+          <button v-else class="icon-btn save-btn" @click="saveEdit">💾</button>
 
           <button class="icon-btn delete-btn" @click="removeChoice(i)">
             🗑
@@ -68,7 +57,7 @@
 const input = ref("")
 const editValue = ref("")
 
-/* ▼ 修正：初期値を必ず [] にする */
+/* ▼ 必ず配列として保持 */
 const choices = useState("choices", () => [])
 const originalChoices = useState("originalChoices", () => [])
 
@@ -118,10 +107,10 @@ const removeChoice = (i) => {
   choices.value.splice(i, 1)
 }
 
-/* ▼ 修正：必ず配列として保存する（retry が動くように） */
-const goFloat = () => {
-  originalChoices.value = [...choices.value]  // ← これが重要！
-  navigateTo("/_float")
+/* ▼ float を消したので Reflect に直行 */
+const goReflect = () => {
+  originalChoices.value = [...choices.value]
+  navigateTo("/02_reflect")
 }
 
 const editInput = ref(null)
@@ -134,126 +123,129 @@ watch(editingIndex, () => {
 </script>
 
 <style scoped>
-/* 全体のレイアウト */
+/* 全体のレイアウト：縦ラインを細く、静かに */
 .listup-container {
-  max-width: 420px;
+  max-width: 360px;
   margin: 0 auto;
-  padding: 32px 24px;
+  padding: 28px 20px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+  text-align: center;
+}
+
+/* タイトル：声量を落とす */
+.listup-container h1 {
+  font-size: 18px;
+  font-weight: 500;
+  opacity: 0.75;
+  margin-bottom: 8px;
 }
 
 /* 追加用 input */
 .add-input {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 12px 14px;
-  font-size: 16px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: #fafafa;
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
 }
 
-/* 準備できたボタン（入力欄と区別） */
+/* 準備できたボタン */
 .ready-btn {
-  width: 160px;
+  width: 150px;
   margin: 0 auto;
   background: #fafafa;
-  border: 1px solid #ccc;
-  padding: 10px 0;
-  font-size: 15px;
-  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 8px 0;
+  font-size: 14px;
+  border-radius: 6px;
   opacity: 0.8;
   transition: opacity 0.2s ease, transform 0.3s ease;
 }
+
 .ready-btn:hover {
   opacity: 0.6;
   transform: translateY(1px);
 }
 
-/* ▼ disabled の見た目（世界観を壊さない） */
 .ready-btn:disabled {
   opacity: 0.35;
   transform: none;
-  pointer-events: none;
 }
 
 /* 選択肢リスト */
 .choice-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 /* カード */
 .choice-row {
-  max-width: 300px;
+  max-width: 240px;
   margin: 0 auto;
   width: 100%;
-  background: #f7f7f7;
-  padding: 14px 16px;
-  border-radius: 10px;
-
+  background: #f9f9f9;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #eee;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 12px;
 }
 
-/* 編集モードの視覚化 */
+/* 編集モード */
 .choice-row.editing {
   background: #ffffff;
   border: 1px solid #ddd;
 }
 
-/* 編集用 input（カード内） */
-.edit-input {
-  border: none;
-  background: transparent;
-  font-size: 16px;
-  padding: 0;
-  outline: none;
-}
-
 /* テキスト */
 .choice-text {
-  font-size: 16px;
+  font-size: 14.5px;
+  opacity: 0.85;
+  flex: 1;
 }
 
 /* アイコン行 */
 .icon-row {
   display: flex;
-  gap: 6px;
+  gap: 4px;
 }
 
 /* アイコンボタン */
 .icon-btn {
-  width: 36px;
-  height: 32px;
-  border-radius: 10px;
-  border: none;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0;
+  width: 28px;
+  height: 26px;
+  font-size: 13px;
+  border-radius: 6px;
+  opacity: 0.75;
 }
 
+.icon-btn:hover {
+  opacity: 0.7;
+}
+
+/* 編集ボタン */
 .edit-btn {
   background: #fff7e6;
   color: #c47a00;
 }
 
+/* 保存ボタン */
 .save-btn {
   background: #e6f4ff;
   color: #0066aa;
 }
 
+/* 削除ボタン */
 .delete-btn {
   background: #fdecec;
   color: #b33a3a;
-}
-
-.icon-btn:hover {
-  opacity: 0.85;
 }
 </style>

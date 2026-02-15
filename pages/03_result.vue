@@ -11,7 +11,7 @@
         <div class="memo-area">
           <textarea
             v-model="memo"
-            placeholder="そっとひとこと"
+            placeholder="ひとこと(あってもなくても)"
             :disabled="alreadySaved"
           ></textarea>
 

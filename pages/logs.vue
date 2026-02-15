@@ -146,112 +146,141 @@ const formatDate = (date) => {
   transition: transform 0.4s ease;
 }
 
+/* ▼ 全体の縦ラインを細くして中央へ */
 .logs-page {
-  padding: 20px;
+  padding: 28px 20px;
+  max-width: 360px;   /* ← 画面中央に細い縦ライン */
+  margin: 0 auto;
+}
+
+/* ▼ タイトルの声量を落とす */
+.logs-page h1 {
+  font-size: 18px;
+  font-weight: 500;
+  opacity: 0.75;
+  margin-bottom: 20px;
 }
 
 ul {
+  width: 100%; /* ← これが決定打！ */
   display: flex;
   flex-direction: column;
+  gap: 14px;
+  padding: 0;
+  align-items: flex-start;
+}
+
+
+.log-row {
+  max-width: 260px;
+  width: 100%;
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px 14px;
+
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
   gap: 12px;
 }
 
-li {
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fff;
-  transition: all 0.4s ease;
-}
 
-.memo {
-  margin-top: 6px;
-  color: #555;
-}
-
-.date {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #888;
-}
-
-.home-btn {
-  margin-top: 24px;
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: none;
-  background: #eee;
-  cursor: pointer;
-}
-
-.fade-out {
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-/* li を左右2カラムにする */
-.choice-row,
-.log-row {
-  display: flex;
-  align-items: center;
-  gap: 12px; /* ← テキストとボタンの距離をここで調整 */
-}
-
-/* 左側のテキスト部分 */
+/* ▼ 左側のテキスト部分 */
 .log-main {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  text-align: left;
 }
 
-/* ボタンを横並びにする */
+/* ▼ 選んだもの */
+.log-main strong {
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+/* ▼ メモ */
+.memo {
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+/* ▼ メモ編集 */
+.memo-edit-input {
+  font-size: 13px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fff;
+}
+
+/* ▼ 日付 */
+.date {
+  font-size: 12px;
+  opacity: 0.55;
+}
+
+/* ▼ アイコン行（右側の圧を弱める） */
 .icon-row {
   display: flex;
+  flex-direction: column; /* ← 縦並びにして右重心を消す */
   gap: 6px;
+  align-items: center;
 }
 
+/* ▼ アイコンボタン（小さく・控えめに） */
 .icon-btn {
-  width: 36px;
-  height: 32px;
-  border-radius: 10px; /* 角丸四角 */
+  width: 28px;     /* ← 小さく */
+  height: 26px;
+  border-radius: 6px;
+  font-size: 13px;
+  opacity: 0.75;
   border: none;
-  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-
-  line-height: 1;
   padding: 0;
 }
 
-/* 編集ボタン（✏️） */
+.icon-btn:hover {
+  opacity: 0.6;
+}
+
+/* ▼ 色はそのまま */
 .edit-btn {
   background: #fff7e6;
   color: #c47a00;
 }
 
-/* 保存ボタン（💾） */
 .save-btn {
   background: #e6f4ff;
   color: #0066aa;
 }
 
-/* 削除ボタン（🗑） */
 .delete-btn {
   background: #fdecec;
   color: #b33a3a;
 }
 
-/* hover（世界観壊さない程度に） */
-.icon-btn:hover {
-  opacity: 0.85;
+/* ▼ ホームボタンも控えめに */
+.home-btn {
+  margin-top: 32px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  opacity: 0.8;
 }
 
-.icon-row {
-  display: flex;
-  gap: 6px; /* ← ボタン同士の余白 */
-  align-items: center;
+.home-btn:hover {
+  opacity: 0.6;
+}
+
+/* ▼ 削除フェード */
+.fade-out {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 </style>
