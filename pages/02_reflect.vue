@@ -1,52 +1,61 @@
 <template>
   <div class="reflect-container">
 
-    <div v-if="choices.length > 1">
-      <p>どちらにする？</p>
-      <h2>{{ current }}</h2>
+    <div class="content" v-if="choices.length > 1">
 
-      <div class="upper-buttons">
-        <button @click="drop">手放す</button>
-        <button @click="pickRandom">まだ迷う</button>
+      <!-- ▼ 問い（存在感アップ） -->
+      <div class="question">これを手放しますか？</div>
+
+      <!-- ▼ current（高さ固定＋フェードのみ） -->
+      <div class="current-wrapper">
+        <Transition name="fade-only">
+          <div v-if="current" class="current" :key="current">
+            {{ current }}
+          </div>
+        </Transition>
       </div>
 
-      <div class="lower-button">
-        <button @click="chooseThis">これがいい</button>
+      <!-- ▼ 上の2つのボタン（控えめ） -->
+      <div class="buttons">
+        <button class="btn subtle" @click="drop">手放す</button>
+        <button class="btn subtle" @click="pickRandom">まだ迷う</button>
       </div>
+
+      <!-- ▼ 「これがいい」は控えめ -->
+      <button class="btn main" @click="chooseThis">これがいい</button>
     </div>
 
-<div v-else>
-  <div class="dummy-last"></div>
-</div>
+    <!-- ▼ choices が1つになったとき（current を表示しない） -->
+    <div class="content" v-else>
+      <!-- 何も表示しない → すぐ白フェードへ -->
+    </div>
 
+    <!-- ▼ 白フェード -->
+    <div v-if="isFading" class="white-fade"></div>
 
-<!-- ▼ 白フェード -->
-<div v-if="isFading" class="white-fade"></div>
-
+    <!-- ▼ 手放す時の薄い隠しレイヤー -->
+    <div v-if="isHiding" class="hide-layer"></div>
 
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue"
+import { onMounted, ref, watch, nextTick } from "vue"
 import { useState } from "#imports"
 
 const choices = useState("choices", () => [])
 const current = useState("current", () => null)
 const lastChoice = useState("lastChoice", () => null)
 
-const showConfirm = ref(false)
-const selectedChoice = ref(null)
-
-/* ▼ 追加：フェード状態 */
 const isFading = ref(false)
+const isHiding = ref(false)
 
 /* ▼ Reflect に来た瞬間の初期化 */
 onMounted(() => {
   if (!current.value) pickRandom()
 })
 
-/* ▼ ランダムに1つ選ぶ */
+/* ▼ ランダムに1つ選ぶ（同じの連続回避） */
 const pickRandom = () => {
   if (choices.value.length === 0) return null
   if (choices.value.length === 1) {
@@ -68,20 +77,34 @@ const pickRandom = () => {
   return candidate
 }
 
-/* ▼ 手放す */
-const drop = () => {
-  choices.value = choices.value.filter((c) => c !== current.value)
-  pickRandom()
+/* ▼ 手放す：current を一旦消してから次をフェードで出す */
+const drop = async () => {
+  const removed = current.value
+
+  // current を消す（フェードアウト）
+  current.value = null
+  await nextTick()
+
+  // ▼ 薄い白膜で隠す（画面が切れない）
+  isHiding.value = true
+
+  setTimeout(() => {
+    choices.value = choices.value.filter((c) => c !== removed)
+    pickRandom()
+
+    // ▼ 次の current がセットされたあとに表示
+    setTimeout(() => {
+      isHiding.value = false
+    }, 80)
+  }, 120)
 }
 
-import { nextTick } from "vue"
-
+/* ▼ choices が1つになったら current を非表示にしてフェード遷移 */
 watch(choices, async (newVal) => {
   if (newVal.length === 1) {
-    // DOM 更新が完了するのを待つ
+    current.value = null  // ← 最後の1つを見せない
     await nextTick()
 
-    // さらに少しだけ余白を作る（自然な間）
     setTimeout(() => {
       isFading.value = true
 
@@ -91,13 +114,11 @@ watch(choices, async (newVal) => {
           query: { choice: newVal[0] }
         })
       }, 300)
-    }, 60)
+    }, 120)
   }
 })
 
-
-
-/* ▼ 追加：「これがいい」もフェードで遷移 */
+/* ▼ 「これがいい」もフェード */
 const chooseThis = () => {
   isFading.value = true
   setTimeout(() => {
@@ -107,59 +128,110 @@ const chooseThis = () => {
     })
   }, 300)
 }
-
-/* ▼ decide はもう使わない（残してもいいけど呼ばれない） */
-const decide = () => {
-  navigateTo({
-    path: "/03_result",
-    query: { choice: choices.value[0] }
-  })
-}
 </script>
 
-
 <style scoped>
+/* ▼ 全体：静かで余白のある画面 */
 .reflect-container {
-  padding: 20px;
+  padding: 48px 24px;
   text-align: center;
+  min-height: 100vh;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
-.upper-buttons {
+
+/* ▼ 中央の縦ライン */
+.content {
+  max-width: 320px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ▼ 問い（存在感アップ） */
+.question {
+  font-size: 18px;
+  font-weight: 500;
+  opacity: 0.75;
+  margin-bottom: 32px;
+}
+
+/* ▼ current の高さ固定（ガタつきゼロ） */
+.current-wrapper {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ▼ current（選択肢） */
+.current {
+  font-size: 32px;
+  font-weight: 600;
+  color: #222;
+}
+
+/* ▼ ボタン群 */
+.buttons {
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-top: 16px;
-}
-.lower-button {
-  margin-top: 16px;
+  margin: 40px 0 28px;
 }
 
+/* ▼ ボタンの静けさ */
+.btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 15px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.btn:hover {
+  opacity: 0.65;
+}
+
+/* ▼ 「これがいい」は控えめ */
+.btn.main {
+  width: 100%;
+  background: #f5f5f5;
+  opacity: 0.75;
+}
+
+/* ▼ current のフェードのみ（左右・上下に動かない） */
+.fade-only-enter-from,
+.fade-only-leave-to {
+  opacity: 0;
+}
+
+.fade-only-enter-active,
+.fade-only-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+/* ▼ 白フェード（遷移用） */
 .white-fade {
   position: fixed;
   inset: 0;
-  background: rgba(255, 255, 255, 0); /* ← 初期は完全透明 */
+  background: rgba(255, 255, 255, 0);
   animation: fadeIn 1s forwards;
   z-index: 999;
 }
 
 @keyframes fadeIn {
-  from {
-    background: rgba(255, 255, 255, 0); /* 完全透明 */
-  }
-  to {
-    background: rgba(255, 255, 255, 1); /* 真っ白 */
-  }
+  from { background: rgba(255, 255, 255, 0); }
+  to   { background: rgba(255, 255, 255, 1); }
 }
 
-
-
-.dummy-last {
-  height: 1px;
-  opacity: 0;
+/* ▼ 手放す時の薄い隠しレイヤー（画面が切れない） */
+.hide-layer {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.4); /* ← 薄い白膜 */
+  backdrop-filter: blur(2px);           /* ← ぼかしで自然に */
+  z-index: 10;
 }
-
-
-@keyframes fadeIn {
-  to { opacity: 1; }
-}
-
 </style>
