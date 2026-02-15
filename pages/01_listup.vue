@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="listup-container">
     <h1>選択肢を入力（仮）</h1>
 
     <input
@@ -29,7 +29,7 @@
       </li>
     </ul>
 
-    <button @click="goFloat" :disabled="choices.length < 2">準備できた</button>
+    <button @click="goFloat('/_float')">準備できた</button>
   </div>
 </template>
 
@@ -91,6 +91,16 @@ const removeChoice = (i) => {
 </script>
 
 <style scoped>
+div {
+  padding: 10px 24px;
+}
+input {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 16px;
+}
+
 .icon-row {
   display: flex;
   gap: 6px; /* ← ボタン同士の余白 */
@@ -104,7 +114,6 @@ const removeChoice = (i) => {
   gap: 12px; /* ← テキストとボタンの距離をここで調整 */
 }
 
-
 /* 左側のテキスト部分 */
 .log-main {
   display: flex;
@@ -117,7 +126,6 @@ const removeChoice = (i) => {
   display: flex;
   gap: 6px;
 }
-
 
 .icon-btn {
   width: 36px;
@@ -155,5 +163,28 @@ const removeChoice = (i) => {
 /* hover（世界観壊さない程度に） */
 .icon-btn:hover {
   opacity: 0.85;
+}
+
+button {
+  border-radius: 8px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.3s ease;
+}
+button:hover {
+  opacity: 0.6;
+  transform: translateY(1px);
+}
+
+.listup-container {
+  max-width: 420px; /* ← タイトル画面と統一 */
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* 全体の呼吸 */
+}
+
+.choice-row { /* 選択肢 */
+  background: #f7f7f7; padding: 12px 14px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
 }
 </style>
