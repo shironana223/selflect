@@ -52,28 +52,18 @@
 <script setup>
 import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
-import { useSupabase } from "~/composables/useSupabase"
 
-const supabase = useSupabase()
 const router = useRouter()
 
 const logs = ref([])
 const loaded = ref(false)
 
-onMounted(async () => {
-  const { data, error } = await supabase
-    .from("logs")
-    .select("*")
-    .order("date", { ascending: false })
-
-  if (!error) {
-    logs.value = data
-  }
-
+onMounted(() => {
+  logs.value = JSON.parse(localStorage.getItem("selflect_logs") || "[]")
   loaded.value = true
 })
 
-/* ▼ 編集関連 */
+/* 編集 */
 const editingId = ref(null)
 const editMemo = ref("")
 
@@ -82,56 +72,28 @@ const startEdit = (log) => {
   editMemo.value = log.memo ?? ""
 }
 
-const saveEdit = async (id) => {
-  const { error } = await supabase
-    .from("logs")
-    .update({ memo: editMemo.value })
-    .eq("id", id)
+const saveEdit = (id) => {
+  const updated = logs.value.map((log) =>
+    log.id === id ? { ...log, memo: editMemo.value } : log
+  )
 
-  if (error) {
-    alert("保存に失敗しました")
-    return
-  }
-
-  // ローカル更新
-  const target = logs.value.find((l) => l.id === id)
-  if (target) target.memo = editMemo.value
+  logs.value = updated
+  localStorage.setItem("selflect_logs", JSON.stringify(updated))
 
   editingId.value = null
   editMemo.value = ""
-
-  alert("この瞬間を少し整えました")
 }
 
-/* ▼ 削除（即反映版） */
-const deleteLog = async (id) => {
+/* 削除 */
+const deleteLog = (id) => {
   const ok = confirm("この選択を手放しますか？")
   if (!ok) return
 
-  // フェードアウト用クラス付与
-  const el = document.getElementById(`log-${id}`)
-  if (el) el.classList.add("fade-out")
-
-  setTimeout(async () => {
-    const { error } = await supabase.from("logs").delete().eq("id", id)
-
-    if (error) {
-      console.error("削除エラー:", error)
-      alert("削除に失敗しました")
-      return
-    }
-
-    // ▼ Vue 側の配列からも削除（これが超重要）
-    logs.value = logs.value.filter((log) => log.id !== id)
-  }, 400)
+  logs.value = logs.value.filter((log) => log.id !== id)
+  localStorage.setItem("selflect_logs", JSON.stringify(logs.value))
 }
 
-/* ▼ ホームへ戻る */
-const goHome = () => {
-  router.push("/")
-}
-
-/* ▼ 日付フォーマット */
+/* 日付 */
 const formatDate = (date) => {
   return new Date(date).toLocaleString("ja-JP", {
     year: "numeric",
@@ -141,7 +103,12 @@ const formatDate = (date) => {
     minute: "2-digit"
   })
 }
+
+const goHome = () => {
+  router.push("/")
+}
 </script>
+
 
 
 <style scoped>

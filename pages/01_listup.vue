@@ -57,7 +57,6 @@
 const input = ref("")
 const editValue = ref("")
 
-/* ▼ 必ず配列として保持 */
 const choices = useState("choices", () => [])
 const originalChoices = useState("originalChoices", () => [])
 
@@ -107,11 +106,11 @@ const removeChoice = (i) => {
   choices.value.splice(i, 1)
 }
 
-/* ▼ float を消したので Reflect に直行 */
 const goReflect = () => {
   originalChoices.value = [...choices.value]
   navigateTo("/02_reflect")
 }
+
 
 const editInput = ref(null)
 

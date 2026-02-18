@@ -42,8 +42,7 @@
 </template>
 
 <script setup>
-
-import { onMounted, ref, watch, nextTick } from "vue"
+import { ref, onMounted, watch, nextTick } from "vue"
 import { useState } from "#imports"
 
 const choices = useState("choices", () => [])
@@ -53,12 +52,12 @@ const lastChoice = useState("lastChoice", () => null)
 const isFading = ref(false)
 const isHiding = ref(false)
 
-/* ▼ Reflect に来た瞬間の初期化 */
+/* Reflect に来た瞬間の初期化 */
 onMounted(() => {
   if (!current.value) pickRandom()
 })
 
-/* ▼ ランダムに1つ選ぶ（同じの連続回避） */
+/* ランダム選択 */
 const pickRandom = () => {
   if (choices.value.length === 0) return null
   if (choices.value.length === 1) {
@@ -80,32 +79,29 @@ const pickRandom = () => {
   return candidate
 }
 
-/* ▼ 手放す：current を一旦消してから次をフェードで出す */
+/* 手放す */
 const drop = async () => {
   const removed = current.value
 
-  // current を消す（フェードアウト）
   current.value = null
   await nextTick()
 
-  // ▼ 一瞬だけ画面を隠す（残りの選択肢を見せない）
   isHiding.value = true
 
   setTimeout(() => {
     choices.value = choices.value.filter((c) => c !== removed)
     pickRandom()
 
-    // ▼ 次の current がセットされたあとに表示
     setTimeout(() => {
       isHiding.value = false
     }, 60)
   }, 100)
 }
 
-/* ▼ choices が1つになったら current を非表示にしてフェード遷移 */
+/* 最後の1つになったら自動遷移 */
 watch(choices, async (newVal) => {
   if (newVal.length === 1) {
-    current.value = null  // ← 最後の1つを見せない
+    current.value = null
     await nextTick()
 
     setTimeout(() => {
@@ -121,7 +117,7 @@ watch(choices, async (newVal) => {
   }
 })
 
-/* ▼ 「これがいい」もフェード */
+/* 「これがいい」 */
 const chooseThis = () => {
   isFading.value = true
   setTimeout(() => {
@@ -132,23 +128,14 @@ const chooseThis = () => {
   }, 300)
 }
 
+/* 白フェード */
 const showFade = ref(true)
 
 onMounted(() => {
-  // Reflect に入った瞬間、白 → 透明 にフェード
   setTimeout(() => {
     showFade.value = false
   }, 600)
 })
-
-// ▼ 結果へ進むときも白フェード
-const goResult = () => {
-  showFade.value = true
-  setTimeout(() => {
-    navigateTo("/result")
-  }, 600)
-}
-
 </script>
 
 <style scoped>
