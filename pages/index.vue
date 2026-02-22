@@ -1,19 +1,12 @@
 <script setup>
-import { onMounted } from "vue"
-const supabase = useSupabase()
+import { onMounted, computed } from "vue"
 
 const logs = useState("logs", () => [])
 const hasLogs = computed(() => logs.value.length > 0)
 
-onMounted(async () => {
-  const { data, error } = await supabase
-    .from("logs")
-    .select("*")
-    .order("date", { ascending: false })
-
-  if (!error) {
-    logs.value = data
-  }
+onMounted(() => {
+  const stored = JSON.parse(localStorage.getItem("selflect_logs") || "[]")
+  logs.value = stored
 })
 
 const goToLog = () => {
@@ -22,6 +15,7 @@ const goToLog = () => {
   }
 }
 </script>
+
 
 <template>
   <div class="home">

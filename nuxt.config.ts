@@ -1,18 +1,7 @@
 export default defineNuxtConfig({
-css: ['@/assets/css/global.css'],
-
-  modules: [
-    '@nuxtjs/supabase'
-  ],
-
-  supabase: {
-    redirect: false
-  },
+  css: ['@/assets/css/global.css'],
 
   runtimeConfig: {
-    public: {
-      supabaseUrl: process.env.SUPABASE_URL,
-      supabaseKey: process.env.SUPABASE_KEY
-    }
+    public: {}
   }
 })
